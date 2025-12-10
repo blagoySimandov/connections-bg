@@ -1,3 +1,6 @@
+import { ConnectionsGame } from "@/components";
+import { samplePuzzle } from "@/data";
+
 export function GamePage() {
-  return <>Hey</>;
+  return <ConnectionsGame puzzle={samplePuzzle} />;
 }
