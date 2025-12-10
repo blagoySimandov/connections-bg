@@ -1,10 +1,7 @@
 import "./index.css";
 
-
 export function App() {
-  return (
-    <>Hey</>
-  );
+  return <>Hey</>;
 }
 
 export default App;
