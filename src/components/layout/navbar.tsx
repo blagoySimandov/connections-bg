@@ -15,16 +15,13 @@ export function Navbar() {
                 src={user.photoURL}
                 alt={user.displayName || "User"}
                 className="h-8 w-8 rounded-full"
+                referrerPolicy="no-referrer"
               />
             )}
             {user.displayName && (
               <span className="text-sm">{user.displayName}</span>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut()}
-            >
+            <Button variant="ghost" size="sm" onClick={() => signOut()}>
               Sign out
             </Button>
           </div>

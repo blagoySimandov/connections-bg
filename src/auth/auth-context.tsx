@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "firebase/auth";
 import { onAuthStateChanged, signInWithGoogle, signOut } from "./auth-helpers";
+import { saveUserToFirestore } from "./user-operations";
 import { auth } from "../lib/firebase";
 
 interface AuthContextType {
@@ -28,7 +29,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleSignInWithGoogle = async () => {
-    await signInWithGoogle();
+    const result = await signInWithGoogle();
+    if (result.user) {
+      await saveUserToFirestore(result.user);
+    }
   };
 
   const handleSignOut = async () => {
