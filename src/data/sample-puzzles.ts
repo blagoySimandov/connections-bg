@@ -1,4 +1,4 @@
-import { Puzzle } from "@/types/puzzle";
+import type { Puzzle } from "@/types";
 
 export const samplePuzzle: Puzzle = {
   solution: {
@@ -6,15 +6,15 @@ export const samplePuzzle: Puzzle = {
       difficulty: 0,
       words: ["София", "Пловдив", "Варна", "Бургас"],
     },
-    "Плодове": {
+    Плодове: {
       difficulty: 1,
       words: ["Ябълка", "Круша", "Банан", "Портокал"],
     },
-    "Цветове": {
+    Цветове: {
       difficulty: 2,
       words: ["Червен", "Син", "Зелен", "Жълт"],
     },
-    "Животни": {
+    Животни: {
       difficulty: 3,
       words: ["Куче", "Котка", "Риба", "Птица"],
     },

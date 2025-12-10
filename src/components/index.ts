@@ -1,2 +1,3 @@
-export { ConnectionsGame } from "./ConnectionsGame";
-export { WordTile } from "./WordTile";
+export * from "./game";
+export * from "./layout";
+export * from "./ui";

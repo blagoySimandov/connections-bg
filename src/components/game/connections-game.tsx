@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Puzzle, WordTile } from "@/lib";
-import { Button } from "./ui/button";
+import { WordTile } from "./word-tile";
+import type { Puzzle } from "@/types";
+import { Button } from "../ui/button";
 import { cn } from "@/lib/utils";
 
 interface ConnectionsGameProps {
@@ -13,6 +14,18 @@ interface SolvedGroup {
   words: string[];
 }
 
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const newArray = [...array];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    //@ts-ignore TODO: Fix this
+    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  }
+  return newArray;
+};
+
+//TODO: Remove useeffect
+//Move shuffleArray outside of function
 export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [words, setWords] = useState<string[]>([]);
   const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
@@ -21,29 +34,23 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const maxMistakes = 4;
 
   useEffect(() => {
-    const allWords = Object.values(puzzle.solution).flatMap(theme => theme.words);
+    const allWords = Object.values(puzzle.solution).flatMap(
+      (theme) => theme.words,
+    );
     setWords(shuffleArray(allWords));
   }, [puzzle]);
 
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
-
   const handleShuffle = () => {
     const remainingWords = words.filter(
-      word => !solvedGroups.some(group => group.words.includes(word))
+      (word) => !solvedGroups.some((group) => group.words.includes(word)),
     );
-    const solved = words.filter(word =>
-      solvedGroups.some(group => group.words.includes(word))
+    const solved = words.filter((word) =>
+      solvedGroups.some((group) => group.words.includes(word)),
     );
     setWords([...solved, ...shuffleArray(remainingWords)]);
   };
 
+  //TODO: useCallback
   const handleWordClick = (word: string) => {
     const newSelected = new Set(selectedWords);
     if (newSelected.has(word)) {
@@ -66,17 +73,22 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     const selectedArray = Array.from(selectedWords);
 
     for (const [category, theme] of Object.entries(puzzle.solution)) {
-      const isCorrect = theme.words.every(word => selectedArray.includes(word));
+      const isCorrect = theme.words.every((word) =>
+        selectedArray.includes(word),
+      );
 
       if (isCorrect) {
-        setSolvedGroups([...solvedGroups, {
-          category,
-          difficulty: theme.difficulty,
-          words: theme.words,
-        }]);
+        setSolvedGroups([
+          ...solvedGroups,
+          {
+            category,
+            difficulty: theme.difficulty,
+            words: theme.words,
+          },
+        ]);
         setSelectedWords(new Set());
 
-        const newWords = words.filter(word => !theme.words.includes(word));
+        const newWords = words.filter((word) => !theme.words.includes(word));
         setWords([...theme.words, ...newWords]);
         return;
       }
@@ -87,11 +99,12 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   };
 
   const isWordSolved = (word: string) => {
-    return solvedGroups.some(group => group.words.includes(word));
+    return solvedGroups.some((group) => group.words.includes(word));
   };
 
+  //TODO: Make it a pure function and move it outside
   const getWordDifficulty = (word: string): 0 | 1 | 2 | 3 | undefined => {
-    const group = solvedGroups.find(g => g.words.includes(word));
+    const group = solvedGroups.find((g) => g.words.includes(word));
     return group?.difficulty;
   };
 
@@ -124,7 +137,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
               group.difficulty === 0 && "bg-connections-easy text-black",
               group.difficulty === 1 && "bg-connections-medium text-black",
               group.difficulty === 2 && "bg-connections-hard text-white",
-              group.difficulty === 3 && "bg-connections-hardest text-white"
+              group.difficulty === 3 && "bg-connections-hardest text-white",
             )}
           >
             <h3 className="font-bold uppercase mb-2">{group.category}</h3>
@@ -135,16 +148,18 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
         {!gameWon && !gameLost && (
           <>
             <div className="grid grid-cols-4 gap-2">
-              {words.map((word, index) => (
-                <WordTile
-                  key={index}
-                  word={word}
-                  selected={selectedWords.has(word)}
-                  solved={isWordSolved(word)}
-                  difficulty={getWordDifficulty(word)}
-                  onClick={() => handleWordClick(word)}
-                />
-              ))}
+              {words
+                .filter((w) => !solvedGroups.some((sg) => sg.words.includes(w)))
+                .map((word, index) => (
+                  <WordTile
+                    key={index}
+                    word={word}
+                    selected={selectedWords.has(word)}
+                    solved={isWordSolved(word)}
+                    difficulty={getWordDifficulty(word)}
+                    onClick={() => handleWordClick(word)}
+                  />
+                ))}
             </div>
 
             <div className="text-center space-y-4">
@@ -154,12 +169,14 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
                     key={i}
                     className={cn(
                       "w-3 h-3 rounded-full",
-                      i < mistakes ? "bg-muted" : "bg-foreground"
+                      i < mistakes ? "bg-muted" : "bg-foreground",
                     )}
                   />
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground">Mistakes Remaining: {maxMistakes - mistakes}</p>
+              <p className="text-sm text-muted-foreground">
+                Mistakes Remaining: {maxMistakes - mistakes}
+              </p>
 
               <div className="flex justify-center gap-4">
                 <Button variant="outline" onClick={handleShuffle}>
@@ -191,21 +208,29 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
             <h2 className="text-3xl font-bold text-red-600">Game Over</h2>
             <p className="text-lg">Нямате повече опити.</p>
             <div className="space-y-2">
-              {Object.entries(puzzle.solution).map(([category, theme], index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "p-4 rounded-md text-center",
-                    theme.difficulty === 0 && "bg-connections-easy text-black",
-                    theme.difficulty === 1 && "bg-connections-medium text-black",
-                    theme.difficulty === 2 && "bg-connections-hard text-white",
-                    theme.difficulty === 3 && "bg-connections-hardest text-white"
-                  )}
-                >
-                  <h3 className="font-bold uppercase mb-2">{category}</h3>
-                  <p className="text-sm uppercase">{theme.words.join(", ")}</p>
-                </div>
-              ))}
+              {Object.entries(puzzle.solution).map(
+                ([category, theme], index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "p-4 rounded-md text-center",
+                      theme.difficulty === 0 &&
+                        "bg-connections-easy text-black",
+                      theme.difficulty === 1 &&
+                        "bg-connections-medium text-black",
+                      theme.difficulty === 2 &&
+                        "bg-connections-hard text-white",
+                      theme.difficulty === 3 &&
+                        "bg-connections-hardest text-white",
+                    )}
+                  >
+                    <h3 className="font-bold uppercase mb-2">{category}</h3>
+                    <p className="text-sm uppercase">
+                      {theme.words.join(", ")}
+                    </p>
+                  </div>
+                ),
+              )}
             </div>
           </div>
         )}
