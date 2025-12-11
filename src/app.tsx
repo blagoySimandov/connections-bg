@@ -12,14 +12,7 @@ export function App() {
         <Routes>
           <Route element={<RootLayout />}>
             <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <GamePage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/" element={<GamePage />} />
             <Route
               path="/admin"
               element={
