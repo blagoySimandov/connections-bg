@@ -1,8 +1,9 @@
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router";
-import { AuthProvider, ProtectedRoute } from "./auth";
+import { AuthProvider, ProtectedRoute, AdminRoute } from "./auth";
 import { RootLayout } from "./components/layout";
 import { LoginPage, GamePage } from "./pages";
+import { AdminPage } from "./pages/admin";
 
 export function App() {
   return (
@@ -17,6 +18,14 @@ export function App() {
                 <ProtectedRoute>
                   <GamePage />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
               }
             />
           </Route>

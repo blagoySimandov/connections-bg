@@ -4,6 +4,8 @@ export interface PuzzleTheme {
 }
 
 export interface Puzzle {
+  id?: string;
+  title?: string;
   solution: Record<string, PuzzleTheme>;
   author?: string;
   date: Date;
