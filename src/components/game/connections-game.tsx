@@ -14,6 +14,17 @@ interface SolvedGroup {
   words: string[];
 }
 
+interface AttemptHistory {
+  categories: number[];
+}
+
+interface GameState {
+  mistakes: number;
+  solvedGroups: SolvedGroup[];
+  attemptHistory: AttemptHistory[];
+  words: string[];
+}
+
 const shuffleArray = <T,>(array: T[]): T[] => {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
@@ -31,13 +42,57 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
   const [solvedGroups, setSolvedGroups] = useState<SolvedGroup[]>([]);
   const [mistakes, setMistakes] = useState(0);
+  const [attemptHistory, setAttemptHistory] = useState<AttemptHistory[]>([]);
   const maxMistakes = 4;
 
+  const getStorageKey = () => {
+    return `connections-game-${puzzle.date.toISOString().split('T')[0]}`;
+  };
+
+  const saveGameState = (state: GameState) => {
+    const key = getStorageKey();
+    console.log('Saving game state to', key, state);
+    localStorage.setItem(key, JSON.stringify(state));
+  };
+
+  const loadGameState = (): GameState | null => {
+    const saved = localStorage.getItem(getStorageKey());
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const getCategoryForWord = (word: string): number => {
+    for (const [_, theme] of Object.entries(puzzle.solution)) {
+      if (theme.words.includes(word)) {
+        return theme.difficulty;
+      }
+    }
+    return -1;
+  };
+
   useEffect(() => {
-    const allWords = Object.values(puzzle.solution).flatMap(
-      (theme) => theme.words,
-    );
-    setWords(shuffleArray(allWords));
+    const savedState = loadGameState();
+    console.log('Loading game state:', savedState);
+
+    if (savedState) {
+      console.log('Restoring saved state');
+      setWords(savedState.words);
+      setSolvedGroups(savedState.solvedGroups);
+      setMistakes(savedState.mistakes);
+      setAttemptHistory(savedState.attemptHistory);
+    } else {
+      console.log('No saved state, initializing new game');
+      const allWords = Object.values(puzzle.solution).flatMap(
+        (theme) => theme.words,
+      );
+      setWords(shuffleArray(allWords));
+    }
   }, [puzzle]);
 
   const handleShuffle = () => {
@@ -47,7 +102,15 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     const solved = words.filter((word) =>
       solvedGroups.some((group) => group.words.includes(word)),
     );
-    setWords([...solved, ...shuffleArray(remainingWords)]);
+    const newWords = [...solved, ...shuffleArray(remainingWords)];
+    setWords(newWords);
+
+    saveGameState({
+      mistakes,
+      solvedGroups,
+      attemptHistory,
+      words: newWords,
+    });
   };
 
   //TODO: useCallback
@@ -71,6 +134,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     if (selectedWords.size !== 4) return;
 
     const selectedArray = Array.from(selectedWords);
+    const categories = selectedArray.map(word => getCategoryForWord(word));
 
     for (const [category, theme] of Object.entries(puzzle.solution)) {
       const isCorrect = theme.words.every((word) =>
@@ -78,24 +142,45 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
       );
 
       if (isCorrect) {
-        setSolvedGroups([
+        const newSolvedGroups = [
           ...solvedGroups,
           {
             category,
             difficulty: theme.difficulty,
             words: theme.words,
           },
-        ]);
+        ];
+        const newWords = words.filter((word) => !theme.words.includes(word));
+        const newAttemptHistory = [...attemptHistory, { categories }];
+
+        setSolvedGroups(newSolvedGroups);
+        setWords([...theme.words, ...newWords]);
+        setAttemptHistory(newAttemptHistory);
         setSelectedWords(new Set());
 
-        const newWords = words.filter((word) => !theme.words.includes(word));
-        setWords([...theme.words, ...newWords]);
+        saveGameState({
+          mistakes,
+          solvedGroups: newSolvedGroups,
+          attemptHistory: newAttemptHistory,
+          words: [...theme.words, ...newWords],
+        });
         return;
       }
     }
 
-    setMistakes(mistakes + 1);
+    const newMistakes = mistakes + 1;
+    const newAttemptHistory = [...attemptHistory, { categories }];
+
+    setMistakes(newMistakes);
+    setAttemptHistory(newAttemptHistory);
     setSelectedWords(new Set());
+
+    saveGameState({
+      mistakes: newMistakes,
+      solvedGroups,
+      attemptHistory: newAttemptHistory,
+      words,
+    });
   };
 
   const isWordSolved = (word: string) => {
