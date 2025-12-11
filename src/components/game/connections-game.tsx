@@ -51,7 +51,6 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
   const saveGameState = (state: GameState) => {
     const key = getStorageKey();
-    console.log('Saving game state to', key, state);
     localStorage.setItem(key, JSON.stringify(state));
   };
 
@@ -78,16 +77,13 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
   useEffect(() => {
     const savedState = loadGameState();
-    console.log('Loading game state:', savedState);
 
     if (savedState) {
-      console.log('Restoring saved state');
       setWords(savedState.words);
       setSolvedGroups(savedState.solvedGroups);
       setMistakes(savedState.mistakes);
       setAttemptHistory(savedState.attemptHistory);
     } else {
-      console.log('No saved state, initializing new game');
       const allWords = Object.values(puzzle.solution).flatMap(
         (theme) => theme.words,
       );
@@ -300,13 +296,13 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
                     className={cn(
                       "p-4 rounded-md text-center",
                       theme.difficulty === 0 &&
-                        "bg-connections-easy text-black",
+                      "bg-connections-easy text-black",
                       theme.difficulty === 1 &&
-                        "bg-connections-medium text-black",
+                      "bg-connections-medium text-black",
                       theme.difficulty === 2 &&
-                        "bg-connections-hard text-white",
+                      "bg-connections-hard text-white",
                       theme.difficulty === 3 &&
-                        "bg-connections-hardest text-white",
+                      "bg-connections-hardest text-white",
                     )}
                   >
                     <h3 className="font-bold uppercase mb-2">{category}</h3>
