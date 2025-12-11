@@ -43,6 +43,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [solvedGroups, setSolvedGroups] = useState<SolvedGroup[]>([]);
   const [mistakes, setMistakes] = useState(0);
   const [attemptHistory, setAttemptHistory] = useState<AttemptHistory[]>([]);
+  const [showOneAway, setShowOneAway] = useState(false);
   const maxMistakes = 4;
 
   const getStorageKey = () => {
@@ -73,6 +74,16 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
       }
     }
     return -1;
+  };
+
+  const isOneAway = (categories: number[]): boolean => {
+    const categoryCounts = categories.reduce((acc, cat) => {
+      acc[cat] = (acc[cat] || 0) + 1;
+      return acc;
+    }, {} as Record<number, number>);
+
+    const counts = Object.values(categoryCounts);
+    return counts.includes(3) && counts.includes(1);
   };
 
   useEffect(() => {
@@ -167,6 +178,13 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     const newMistakes = mistakes + 1;
     const newAttemptHistory = [...attemptHistory, { categories }];
 
+    if (isOneAway(categories)) {
+      setShowOneAway(true);
+      setTimeout(() => {
+        setShowOneAway(false);
+      }, 2000);
+    }
+
     setMistakes(newMistakes);
     setAttemptHistory(newAttemptHistory);
     setSelectedWords(new Set());
@@ -193,7 +211,15 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const gameLost = mistakes >= maxMistakes;
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-6 relative">
+      {showOneAway && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+          <div className="bg-black/80 text-white px-8 py-4 rounded-lg text-xl font-bold">
+            За Малко...
+          </div>
+        </div>
+      )}
+
       <header className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-2">Connections</h1>
         <p className="text-muted-foreground">
@@ -207,7 +233,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
       <main className="space-y-6">
         <p className="text-center text-lg font-medium">
-          Create four groups of four!
+          Направете групи с по 4 думи!
         </p>
 
         {solvedGroups.map((group, index) => (
@@ -256,21 +282,21 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
                 ))}
               </div>
               <p className="text-sm text-muted-foreground">
-                Mistakes Remaining: {maxMistakes - mistakes}
+                Оставащи опити: {maxMistakes - mistakes}
               </p>
 
               <div className="flex justify-center gap-4">
                 <Button variant="outline" onClick={handleShuffle}>
-                  Shuffle
+                  Разбъркай
                 </Button>
                 <Button variant="outline" onClick={handleDeselectAll}>
-                  Deselect All
+                  Отмаркирай всички
                 </Button>
                 <Button
                   onClick={handleSubmit}
                   disabled={selectedWords.size !== 4}
                 >
-                  Submit
+                  Провери
                 </Button>
               </div>
             </div>
@@ -286,7 +312,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
         {gameLost && (
           <div className="text-center space-y-4">
-            <h2 className="text-3xl font-bold text-red-600">Game Over</h2>
+            <h2 className="text-3xl font-bold text-red-600">Край на Играта</h2>
             <p className="text-lg">Нямате повече опити.</p>
             <div className="space-y-2">
               {Object.entries(puzzle.solution).map(
