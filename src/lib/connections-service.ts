@@ -29,6 +29,21 @@ export class ConnectionService {
     });
   }
 
+  async getPuzzleForCurrentDate(): Promise<Puzzle[]> {
+    const connectionsRef = collection(db, this.collectionName);
+    const q = query(connectionsRef, orderBy("date", "desc"));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date ? new Date(data.date) : new Date(),
+      } as Puzzle;
+    });
+  }
+
   async getById(id: string): Promise<Puzzle | null> {
     const connectionRef = doc(db, this.collectionName, id);
     const snapshot = await getDoc(connectionRef);
