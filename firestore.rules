@@ -7,12 +7,23 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
+    function isTodayConnection() {
+      let connDate = resource.data.date;
+      let today = request.time.toDate().date();
+      return connDate != null && 
+             connDate == (today.year + '-' + 
+                         (today.month < 10 ? '0' : '') + today.month + '-' + 
+                         (today.day < 10 ? '0' : '') + today.day + 'T00:00:00.000Z');
+    }
+
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
+    // if request.auth != null || isTodayConnection()
+
     match /connections/{connectionId} {
-      allow read: if request.auth != null;
+      allow read: if true; 
       allow create, update, delete: if isAdmin();
     }
   }

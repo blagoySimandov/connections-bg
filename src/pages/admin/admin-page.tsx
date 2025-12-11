@@ -135,7 +135,7 @@ export function AdminPage() {
   function handleCategoryWordChange(
     catIndex: number,
     wordIndex: number,
-    value: string
+    value: string,
   ) {
     setFormData({
       ...formData,
@@ -143,7 +143,7 @@ export function AdminPage() {
         formData.categories,
         catIndex,
         wordIndex,
-        value
+        value,
       ),
     });
   }

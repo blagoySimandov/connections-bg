@@ -9,7 +9,10 @@ export function Navbar() {
     <nav className="border-b border-border bg-background">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-xl font-bold hover:text-primary transition-colors">
+          <Link
+            to="/"
+            className="text-xl font-bold hover:text-primary transition-colors"
+          >
             Connections
           </Link>
           {userData?.role === "admin" && (
@@ -36,6 +39,14 @@ export function Navbar() {
             <Button variant="ghost" size="sm" onClick={() => signOut()}>
               Sign out
             </Button>
+          </div>
+        )}
+
+        {!user && (
+          <div className="flex items-center gap-4">
+            <Link to="/login">
+              <Button>Log in</Button>
+            </Link>
           </div>
         )}
       </div>

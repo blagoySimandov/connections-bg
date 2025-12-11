@@ -3,8 +3,9 @@ import { ConnectionsGame } from "@/components/game/connections-game";
 import { connectionService } from "@/lib";
 
 export function GamePage() {
+  const currentDate = new Date().toISOString().split("T")[0];
   const { data, isLoading, error } = useQuery({
-    queryKey: ["puzzle", "today"],
+    queryKey: ["puzzle", "today", currentDate],
     queryFn: () => connectionService.getPuzzleForCurrentDate(),
   });
 
