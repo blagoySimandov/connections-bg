@@ -1,4 +1,4 @@
-import type { Puzzle, PuzzleTheme } from "../../types/puzzle";
+import type { PuzzleTheme } from "../../types/puzzle";
 import { EMPTY_CATEGORY } from "./constants";
 
 export interface CategoryForm {
@@ -7,7 +7,7 @@ export interface CategoryForm {
 }
 
 export function buildSolutionFromCategories(
-  categories: CategoryForm[]
+  categories: CategoryForm[],
 ): Record<string, PuzzleTheme> {
   const solution: Record<string, PuzzleTheme> = {};
 
@@ -24,7 +24,7 @@ export function buildSolutionFromCategories(
 }
 
 export function buildCategoriesFromSolution(
-  solution: Record<string, PuzzleTheme>
+  solution: Record<string, PuzzleTheme>,
 ): CategoryForm[] {
   const categories: CategoryForm[] = [];
 
@@ -51,38 +51,33 @@ export function buildCategoriesFromSolution(
 export function updateCategoryName(
   categories: CategoryForm[],
   index: number,
-  name: string
+  name: string,
 ): CategoryForm[] {
-  const newCategories = [...categories];
-  newCategories[index] = {
-    ...newCategories[index],
-    name,
-  };
-  return newCategories;
+  return categories.map((cat, i) => (i === index ? { ...cat, name } : cat));
 }
 
 export function updateCategoryWord(
   categories: CategoryForm[],
   catIndex: number,
   wordIndex: number,
-  value: string
+  value: string,
 ): CategoryForm[] {
-  const newCategories = [...categories];
-  const newWords = [...newCategories[catIndex].words];
-  newWords[wordIndex] = value;
-  newCategories[catIndex] = {
-    ...newCategories[catIndex],
-    words: newWords as [string, string, string, string],
-  };
-  return newCategories;
+  return categories.map((cat, i) => {
+    if (i !== catIndex) return cat;
+
+    const newWords = [...cat.words] as [string, string, string, string];
+    newWords[wordIndex] = value;
+
+    return { ...cat, words: newWords };
+  });
 }
 
 export function getInitialFormDate(): string {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toISOString().split("T")[0] ?? "";
 }
 
 export function formatDateForInput(date: Date): string {
-  return date.toISOString().split("T")[0];
+  return date.toISOString().split("T")[0] ?? "";
 }
 
 export function formatDateForDisplay(date: Date): string {

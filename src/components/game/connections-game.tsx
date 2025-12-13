@@ -226,7 +226,6 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
         <GameEndScreen
           isWon={gameWon}
           date={puzzle.date}
-          solvedGroups={solvedGroups}
           mistakes={mistakes}
           attemptHistory={attemptHistory}
           isOpen={isResultsOpen}

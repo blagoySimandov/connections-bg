@@ -6,7 +6,6 @@ import { X, Trophy, Frown } from "lucide-react";
 interface GameEndScreenProps {
   isWon: boolean;
   date: Date;
-  solvedGroups: SolvedGroup[];
   mistakes: number;
   attemptHistory: AttemptHistory[];
   isOpen: boolean;
@@ -16,7 +15,6 @@ interface GameEndScreenProps {
 export function GameEndScreen({
   isWon,
   date,
-  solvedGroups,
   mistakes,
   attemptHistory,
   isOpen,
@@ -71,7 +69,6 @@ export function GameEndScreen({
 
             <GameResults
               attemptHistory={attemptHistory}
-              solvedGroups={solvedGroups}
               mistakes={mistakes}
               date={date}
               gameWon={isWon}
