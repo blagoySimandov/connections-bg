@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import type { AttemptHistory, SolvedGroup } from "./types/game-types";
-import { EMOJI_SQUARES } from "./constants";
+import { EMOJI_SQUARES, isGameWon } from "./constants";
 
 interface GameResultsProps {
   attemptHistory: AttemptHistory[];
@@ -22,9 +22,7 @@ function generateShareableText(
     day: "2-digit",
   });
 
-  const resultLine = gameWon
-    ? `Решено с ${mistakes} грешки`
-    : `Не е решено (${mistakes}/4 грешки)`;
+  const resultLine = `${mistakes}/4 грешки ${gameWon ? "✅" : "❌"}`;
 
   const emojiLines = attemptHistory
     .map((attempt) => {
@@ -37,7 +35,7 @@ function generateShareableText(
     })
     .join("\n");
 
-  return `Connections BG ${dateStr}\n${resultLine}\n\n${emojiLines}`;
+  return `Connections BG\n${dateStr}\n${resultLine}\n\n${emojiLines}`;
 }
 
 export function GameResults({
