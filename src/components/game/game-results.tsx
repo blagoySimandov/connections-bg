@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import type { AttemptHistory } from "./types/game-types";
-import type { EMOJI_SQUARES } from "./constants";
+import { EMOJI_SQUARES } from "./constants";
 
 interface GameResultsProps {
   attemptHistory: AttemptHistory[];
