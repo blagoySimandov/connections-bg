@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 import type { AttemptHistory } from "./types/game-types";
+import type { EMOJI_SQUARES } from "./constants";
 
 interface GameResultsProps {
   attemptHistory: AttemptHistory[];
@@ -8,13 +9,6 @@ interface GameResultsProps {
   date: Date;
   gameWon: boolean;
 }
-
-const EMOJI_SQUARES = {
-  0: "🟨",
-  1: "🟩",
-  2: "🟦",
-  3: "🟪",
-} as const;
 
 function generateShareableText(
   attemptHistory: AttemptHistory[],
