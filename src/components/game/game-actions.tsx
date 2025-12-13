@@ -24,10 +24,7 @@ export function GameActions({
       <Button variant="outline" onClick={onDeselectAll}>
         Отмаркирай всички
       </Button>
-      <Button
-        onClick={onSubmit}
-        disabled={selectedCount !== 4}
-      >
+      <Button onClick={onSubmit} disabled={selectedCount !== 4}>
         Провери
       </Button>
     </div>

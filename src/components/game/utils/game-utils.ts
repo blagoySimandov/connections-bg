@@ -1,11 +1,13 @@
+import { difficultyColors as colorMap } from "../constants";
+import type { SolvedGroup } from "../types/game-types";
 /**
  * Shuffles an array using the Fisher-Yates algorithm
  */
-export const shuffleArray = <T,>(array: T[]): T[] => {
+export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    [newArray[i], newArray[j]] = [newArray[j]!, newArray[i]!];
   }
   return newArray;
 };
@@ -13,13 +15,9 @@ export const shuffleArray = <T,>(array: T[]): T[] => {
 /**
  * Gets the difficulty color classes for a given difficulty level
  */
-export const getDifficultyColors = (difficulty: 0 | 1 | 2 | 3): string => {
-  const colorMap = {
-    0: "bg-connections-easy text-black",
-    1: "bg-connections-medium text-black",
-    2: "bg-connections-hard text-white",
-    3: "bg-connections-hardest text-white",
-  };
+export const getDifficultyColors = (
+  difficulty: SolvedGroup["difficulty"],
+): string => {
   return colorMap[difficulty];
 };
 
@@ -38,5 +36,5 @@ export const formatDateBulgarian = (date: Date): string => {
  * Generates a storage key for a specific puzzle date
  */
 export const getStorageKey = (date: Date): string => {
-  return `connections-game-${date.toISOString().split('T')[0]}`;
+  return `connections-game-${date.toISOString().split("T")[0]}`;
 };

@@ -11,9 +11,7 @@ export function GameHeader({ date }: GameHeaderProps) {
   return (
     <header className="text-center mb-8">
       <h1 className="text-4xl font-bold mb-2">Connections</h1>
-      <p className="text-muted-foreground">
-        {formatDateBulgarian(date)}
-      </p>
+      <p className="text-muted-foreground">{formatDateBulgarian(date)}</p>
     </header>
   );
 }
