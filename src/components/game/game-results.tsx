@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-import type { AttemptHistory } from "./types/game-types";
+import type { AttemptHistory, SolvedGroup } from "./types/game-types";
 import { EMOJI_SQUARES } from "./constants";
 
 interface GameResultsProps {
@@ -30,13 +30,10 @@ function generateShareableText(
     .map((attempt) => {
       const sortedCategories = [...attempt.categories].sort((a, b) => a - b);
       const emojis = sortedCategories
-        .map((cat) => EMOJI_SQUARES[cat as 0 | 1 | 2 | 3])
+        .map((cat) => EMOJI_SQUARES[cat as SolvedGroup["difficulty"]])
         .join("");
 
-      const isCorrect = attempt.categories.every(
-        (c) => c === attempt.categories[0],
-      );
-      return isCorrect ? `${emojis} ✓` : emojis;
+      return emojis;
     })
     .join("\n");
 
@@ -92,7 +89,7 @@ export function GameResults({
               <div key={index} className="flex gap-1.5 items-center">
                 {sortedCategories.map((category, i) => (
                   <span key={i} className="text-2xl">
-                    {EMOJI_SQUARES[category as 0 | 1 | 2 | 3]}
+                    {EMOJI_SQUARES[category as SolvedGroup["difficulty"]]}
                   </span>
                 ))}
               </div>
