@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import type { Puzzle } from "@/types";
 import { useGameState } from "./hooks/use-game-state";
 import { useGameLogic } from "./hooks/use-game-logic";
@@ -10,6 +10,7 @@ import { WordGrid } from "./word-grid";
 import { MistakesIndicator } from "./mistakes-indicator";
 import { GameActions } from "./game-actions";
 import { GameEndScreen } from "./game-end-screen";
+import { BarChart3 } from "lucide-react";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -43,9 +44,22 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     checkGameLost,
   } = useGameLogic(puzzle, solvedGroups);
 
+  const gameWon = checkGameWon();
+  const gameLost = checkGameLost(mistakes, MAX_MISTAKES);
+
+  const [hasClosedResults, setHasClosedResults] = useState(false);
+  const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
+
+  const handleResultsOpenChange = (open: boolean) => {
+    if (!open) {
+      setHasClosedResults(true);
+    }
+  };
+
   const handleShuffle = useCallback(() => {
     const remainingWords = words.filter(
-      (word: string) => !solvedGroups.some((group) => group.words.includes(word)),
+      (word: string) =>
+        !solvedGroups.some((group) => group.words.includes(word)),
     );
     const solved = words.filter((word: string) =>
       solvedGroups.some((group) => group.words.includes(word)),
@@ -61,19 +75,22 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     });
   }, [words, solvedGroups, mistakes, attemptHistory, setWords, saveGameState]);
 
-  const handleWordClick = useCallback((word: string) => {
-    setSelectedWords((prev: Set<string>) => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(word)) {
-        newSelected.delete(word);
-      } else {
-        if (newSelected.size < 4) {
-          newSelected.add(word);
+  const handleWordClick = useCallback(
+    (word: string) => {
+      setSelectedWords((prev: Set<string>) => {
+        const newSelected = new Set(prev);
+        if (newSelected.has(word)) {
+          newSelected.delete(word);
+        } else {
+          if (newSelected.size < 4) {
+            newSelected.add(word);
+          }
         }
-      }
-      return newSelected;
-    });
-  }, [setSelectedWords]);
+        return newSelected;
+      });
+    },
+    [setSelectedWords],
+  );
 
   const handleDeselectAll = useCallback(() => {
     setSelectedWords(new Set());
@@ -83,7 +100,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     if (selectedWords.size !== 4) return;
 
     const selectedArray = Array.from(selectedWords);
-    const categories = selectedArray.map(word => getCategoryForWord(word));
+    const categories = selectedArray.map((word) => getCategoryForWord(word));
 
     for (const [category, theme] of Object.entries(puzzle.solution)) {
       const isCorrect = theme.words.every((word) =>
@@ -99,7 +116,9 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
             words: theme.words,
           },
         ];
-        const newWords = words.filter((word: string) => !theme.words.includes(word));
+        const newWords = words.filter(
+          (word: string) => !theme.words.includes(word),
+        );
         const newAttemptHistory = [...attemptHistory, { categories }];
 
         setSolvedGroups(newSolvedGroups);
@@ -152,9 +171,6 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     triggerOneAwayMessage,
   ]);
 
-  const gameWon = checkGameWon();
-  const gameLost = checkGameLost(mistakes, MAX_MISTAKES);
-
   return (
     <div className="max-w-2xl mx-auto p-6 relative">
       <OneAwayPopup show={showOneAway} />
@@ -166,7 +182,12 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           Направете групи с по 4 думи!
         </p>
 
-        <SolvedGroupsDisplay solvedGroups={solvedGroups} />
+        <SolvedGroupsDisplay
+          solvedGroups={solvedGroups}
+          gameEnded={gameLost || gameWon}
+          gameLost={gameLost}
+          puzzle={puzzle}
+        />
 
         {!gameWon && !gameLost && (
           <>
@@ -190,7 +211,27 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           </>
         )}
 
-        <GameEndScreen gameWon={gameWon} gameLost={gameLost} puzzle={puzzle} />
+        {(gameWon || gameLost) && (
+          <div className="flex justify-center">
+            <button
+              onClick={() => setHasClosedResults(false)}
+              className="flex items-center gap-2 px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-full transition-colors shadow-lg hover:shadow-xl"
+            >
+              <BarChart3 size={20} />
+              Виж Резултатите
+            </button>
+          </div>
+        )}
+
+        <GameEndScreen
+          isWon={gameWon}
+          date={puzzle.date}
+          solvedGroups={solvedGroups}
+          mistakes={mistakes}
+          attemptHistory={attemptHistory}
+          isOpen={isResultsOpen}
+          onOpenChange={handleResultsOpenChange}
+        />
       </main>
     </div>
   );

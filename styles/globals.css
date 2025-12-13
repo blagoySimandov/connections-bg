@@ -111,10 +111,10 @@
 }
 
 @theme {
-  --color-connections-easy: oklch(0.9 0.15 100);
-  --color-connections-medium: oklch(0.75 0.15 150);
-  --color-connections-hard: oklch(0.65 0.15 230);
-  --color-connections-hardest: oklch(0.6 0.18 300);
+  --color-connections-easy: oklch(0.88 0.18 95);
+  --color-connections-medium: oklch(0.7 0.15 140);
+  --color-connections-hard: oklch(0.6 0.15 240);
+  --color-connections-hardest: oklch(0.6 0.18 295);
   --color-connections-word: oklch(0.94 0.01 264);
   --color-connections-word-hover: oklch(0.88 0.02 264);
   --color-connections-word-selected: oklch(0.2 0.02 264);
