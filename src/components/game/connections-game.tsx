@@ -49,6 +49,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
   const [hasClosedResults, setHasClosedResults] = useState(false);
   const [isIncorrect, setIsIncorrect] = useState(false);
+  const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
 
   const handleResultsOpenChange = (open: boolean) => {
@@ -122,17 +123,23 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
         );
         const newAttemptHistory = [...attemptHistory, { categories }];
 
-        setSolvedGroups(newSolvedGroups);
-        setWords([...theme.words, ...newWords]);
-        setAttemptHistory(newAttemptHistory);
+        setAnimatingWords(theme.words);
         setSelectedWords(new Set());
 
-        saveGameState({
-          mistakes,
-          solvedGroups: newSolvedGroups,
-          attemptHistory: newAttemptHistory,
-          words: [...theme.words, ...newWords],
-        });
+        setTimeout(() => {
+          setSolvedGroups(newSolvedGroups);
+          setWords([...theme.words, ...newWords]);
+          setAttemptHistory(newAttemptHistory);
+          setAnimatingWords([]);
+
+          saveGameState({
+            mistakes,
+            solvedGroups: newSolvedGroups,
+            attemptHistory: newAttemptHistory,
+            words: [...theme.words, ...newWords],
+          });
+        }, 500);
+
         return;
       }
     }
@@ -216,6 +223,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
               getWordDifficulty={getWordDifficulty}
               onWordClick={handleWordClick}
               isIncorrect={isIncorrect}
+              animatingWords={animatingWords}
             />
 
             <MistakesIndicator mistakes={mistakes} maxMistakes={MAX_MISTAKES} />
