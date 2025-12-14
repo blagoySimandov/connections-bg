@@ -17,9 +17,13 @@ export function SolvedGroupsDisplay({
   puzzle,
 }: SolvedGroupsDisplayProps) {
   if (gameLost && puzzle) {
+    const sortedSolution = Object.entries(puzzle.solution).sort(
+      ([, themeA], [, themeB]) => themeA.difficulty - themeB.difficulty
+    );
+
     return (
       <div className="space-y-2">
-        {Object.entries(puzzle.solution).map(([category, theme], index) => (
+        {sortedSolution.map(([category, theme], index) => (
           <div
             key={index}
             className={cn(

@@ -48,6 +48,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const gameLost = checkGameLost(mistakes, MAX_MISTAKES);
 
   const [hasClosedResults, setHasClosedResults] = useState(false);
+  const [isIncorrect, setIsIncorrect] = useState(false);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
 
   const handleResultsOpenChange = (open: boolean) => {
@@ -138,21 +139,37 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
     const newMistakes = mistakes + 1;
     const newAttemptHistory = [...attemptHistory, { categories }];
+    const isLastMistake = newMistakes >= MAX_MISTAKES;
 
     if (isOneAway(categories)) {
       triggerOneAwayMessage();
     }
 
-    setMistakes(newMistakes);
-    setAttemptHistory(newAttemptHistory);
-    setSelectedWords(new Set());
+    setIsIncorrect(true);
 
-    saveGameState({
-      mistakes: newMistakes,
-      solvedGroups,
-      attemptHistory: newAttemptHistory,
-      words,
-    });
+    if (isLastMistake) {
+      setTimeout(() => {
+        setIsIncorrect(false);
+        setMistakes(newMistakes);
+        setAttemptHistory(newAttemptHistory);
+        saveGameState({
+          mistakes: newMistakes,
+          solvedGroups,
+          attemptHistory: newAttemptHistory,
+          words,
+        });
+      }, 900);
+    } else {
+      setTimeout(() => setIsIncorrect(false), 600);
+      setMistakes(newMistakes);
+      setAttemptHistory(newAttemptHistory);
+      saveGameState({
+        mistakes: newMistakes,
+        solvedGroups,
+        attemptHistory: newAttemptHistory,
+        words,
+      });
+    }
   }, [
     selectedWords,
     getCategoryForWord,
@@ -198,6 +215,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
               isWordSolved={isWordSolved}
               getWordDifficulty={getWordDifficulty}
               onWordClick={handleWordClick}
+              isIncorrect={isIncorrect}
             />
 
             <MistakesIndicator mistakes={mistakes} maxMistakes={MAX_MISTAKES} />
