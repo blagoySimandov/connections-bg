@@ -52,9 +52,17 @@ export function useGameState(puzzle: Puzzle) {
       const allWords = Object.values(puzzle.solution).flatMap(
         (theme) => theme.words,
       );
-      setWords(shuffleArray(allWords));
+      const shuffledWords = shuffleArray(allWords);
+      setWords(shuffledWords);
+
+      saveGameState({
+        mistakes: 0,
+        solvedGroups: [],
+        attemptHistory: [],
+        words: shuffledWords,
+      });
     }
-  }, [puzzle, loadGameState]);
+  }, [puzzle, loadGameState, saveGameState]);
 
   /**
    * Displays the "one away" message temporarily
