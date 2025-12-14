@@ -7,6 +7,7 @@ import {
   deleteDoc,
   query,
   orderBy,
+  where,
 } from "firebase/firestore/lite";
 import { db } from "./firebase";
 import type { Puzzle } from "../types/puzzle";
@@ -29,19 +30,33 @@ export class ConnectionService {
     });
   }
 
-  async getPuzzleForCurrentDate(): Promise<Puzzle[]> {
+  async getPuzzleByDate(date: Date): Promise<Puzzle | null> {
     const connectionsRef = collection(db, this.collectionName);
-    const q = query(connectionsRef, orderBy("date", "desc"));
+
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const q = query(
+      connectionsRef,
+      where("date", ">=", startOfDay.toISOString()),
+      where("date", "<=", endOfDay.toISOString())
+    );
+
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        date: data.date ? new Date(data.date) : new Date(),
-      } as Puzzle;
-    });
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const data = snapshot.docs[0]?.data();
+    return {
+      id: snapshot.docs[0]?.id,
+      ...data,
+      date: data?.date ? new Date(data.date) : new Date(),
+    } as Puzzle;
   }
 
   async getById(id: string): Promise<Puzzle | null> {

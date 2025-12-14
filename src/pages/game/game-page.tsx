@@ -3,13 +3,11 @@ import { ConnectionsGame } from "@/components/game/connections-game";
 import { connectionService } from "@/lib";
 
 export function GamePage() {
-  const currentDate = new Date().toISOString().split("T")[0];
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["puzzle", "today", currentDate],
-    queryFn: () => connectionService.getPuzzleForCurrentDate(),
+  const currentDate = new Date();
+  const { data: puzzle, isLoading, error } = useQuery({
+    queryKey: ["puzzle", currentDate.toISOString().split("T")[0]],
+    queryFn: () => connectionService.getPuzzleByDate(currentDate),
   });
-
-  const puzzle = data?.[0];
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading puzzle: {error.message}</div>;
