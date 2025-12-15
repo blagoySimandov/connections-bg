@@ -11,6 +11,11 @@ import { MistakesIndicator } from "./mistakes-indicator";
 import { GameActions } from "./game-actions";
 import { GameEndScreen } from "./game-end-screen";
 import { BarChart3 } from "lucide-react";
+import {
+  END_SCREEN_DELAY,
+  INCORRECT_DELAY,
+  WORD_SUBMIT_DELAY,
+} from "./constants";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -138,7 +143,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
             attemptHistory: newAttemptHistory,
             words: [...theme.words, ...newWords],
           });
-        }, 500);
+        }, WORD_SUBMIT_DELAY);
 
         return;
       }
@@ -165,9 +170,9 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           attemptHistory: newAttemptHistory,
           words,
         });
-      }, 900);
+      }, END_SCREEN_DELAY);
     } else {
-      setTimeout(() => setIsIncorrect(false), 600);
+      setTimeout(() => setIsIncorrect(false), INCORRECT_DELAY);
       setMistakes(newMistakes);
       setAttemptHistory(newAttemptHistory);
       saveGameState({

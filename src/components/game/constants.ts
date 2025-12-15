@@ -12,4 +12,14 @@ const difficultyColors = {
   3: "bg-connections-hardest text-white",
 };
 
-export { EMOJI_SQUARES, difficultyColors };
+const WORD_SUBMIT_DELAY = 500;
+const INCORRECT_DELAY = 600;
+const END_SCREEN_DELAY = 900;
+
+export {
+  EMOJI_SQUARES,
+  difficultyColors,
+  WORD_SUBMIT_DELAY,
+  END_SCREEN_DELAY,
+  INCORRECT_DELAY,
+};
