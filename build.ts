@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 import plugin from "bun-plugin-tailwind";
 import { existsSync } from "fs";
-import { rm } from "fs/promises";
+import { rm, copyFile } from "fs/promises";
 import path from "path";
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
@@ -151,6 +151,15 @@ const outputTable = result.outputs.map((output) => ({
 }));
 
 console.table(outputTable);
+
+// Copy robots.txt to dist
+const robotsTxtSrc = path.join(process.cwd(), "src", "robots.txt");
+const robotsTxtDest = path.join(outdir, "robots.txt");
+if (existsSync(robotsTxtSrc)) {
+  await copyFile(robotsTxtSrc, robotsTxtDest);
+  console.log("📄 Copied robots.txt to dist");
+}
+
 const buildTime = (end - start).toFixed(2);
 
 console.log(`\n✅ Build completed in ${buildTime}ms\n`);

@@ -1,0 +1,18 @@
+# Block all crawlers from accessing the admin page
+User-agent: *
+Disallow: /admin
+
+# Allow Googlebot to access the main page
+User-agent: Googlebot
+Allow: /
+Disallow: /admin
+
+# Allow Bingbot to access the main page
+User-agent: Bingbot
+Allow: /
+Disallow: /admin
+
+# Allow DuckDuckBot to access the main page
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /admin
