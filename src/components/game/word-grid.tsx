@@ -8,6 +8,8 @@ interface WordGridProps {
   isWordSolved: (word: string) => boolean;
   getWordDifficulty: (word: string) => 0 | 1 | 2 | 3 | undefined;
   onWordClick: (word: string) => void;
+  isIncorrect?: boolean;
+  animatingWords?: string[];
 }
 
 /**
@@ -20,6 +22,8 @@ export function WordGrid({
   isWordSolved,
   getWordDifficulty,
   onWordClick,
+  isIncorrect = false,
+  animatingWords = [],
 }: WordGridProps) {
   const unsolvedWords = words.filter(
     (w) => !solvedGroups.some((sg) => sg.words.includes(w))
@@ -35,6 +39,8 @@ export function WordGrid({
           solved={isWordSolved(word)}
           difficulty={getWordDifficulty(word)}
           onClick={() => onWordClick(word)}
+          isIncorrect={isIncorrect && selectedWords.has(word)}
+          isAnimating={animatingWords.includes(word)}
         />
       ))}
     </div>

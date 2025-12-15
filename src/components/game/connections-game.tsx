@@ -11,6 +11,11 @@ import { MistakesIndicator } from "./mistakes-indicator";
 import { GameActions } from "./game-actions";
 import { GameEndScreen } from "./game-end-screen";
 import { BarChart3 } from "lucide-react";
+import {
+  END_SCREEN_DELAY,
+  INCORRECT_DELAY,
+  WORD_SUBMIT_DELAY,
+} from "./constants";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -48,6 +53,8 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const gameLost = checkGameLost(mistakes, MAX_MISTAKES);
 
   const [hasClosedResults, setHasClosedResults] = useState(false);
+  const [isIncorrect, setIsIncorrect] = useState(false);
+  const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
 
   const handleResultsOpenChange = (open: boolean) => {
@@ -121,38 +128,60 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
         );
         const newAttemptHistory = [...attemptHistory, { categories }];
 
-        setSolvedGroups(newSolvedGroups);
-        setWords([...theme.words, ...newWords]);
-        setAttemptHistory(newAttemptHistory);
+        setAnimatingWords(theme.words);
         setSelectedWords(new Set());
 
-        saveGameState({
-          mistakes,
-          solvedGroups: newSolvedGroups,
-          attemptHistory: newAttemptHistory,
-          words: [...theme.words, ...newWords],
-        });
+        setTimeout(() => {
+          setSolvedGroups(newSolvedGroups);
+          setWords([...theme.words, ...newWords]);
+          setAttemptHistory(newAttemptHistory);
+          setAnimatingWords([]);
+
+          saveGameState({
+            mistakes,
+            solvedGroups: newSolvedGroups,
+            attemptHistory: newAttemptHistory,
+            words: [...theme.words, ...newWords],
+          });
+        }, WORD_SUBMIT_DELAY);
+
         return;
       }
     }
 
     const newMistakes = mistakes + 1;
     const newAttemptHistory = [...attemptHistory, { categories }];
+    const isLastMistake = newMistakes >= MAX_MISTAKES;
 
     if (isOneAway(categories)) {
       triggerOneAwayMessage();
     }
 
-    setMistakes(newMistakes);
-    setAttemptHistory(newAttemptHistory);
-    setSelectedWords(new Set());
+    setIsIncorrect(true);
 
-    saveGameState({
-      mistakes: newMistakes,
-      solvedGroups,
-      attemptHistory: newAttemptHistory,
-      words,
-    });
+    if (isLastMistake) {
+      setTimeout(() => {
+        setIsIncorrect(false);
+        setMistakes(newMistakes);
+        setAttemptHistory(newAttemptHistory);
+        saveGameState({
+          mistakes: newMistakes,
+          solvedGroups,
+          attemptHistory: newAttemptHistory,
+          words,
+        });
+      }, END_SCREEN_DELAY);
+    } else {
+      setTimeout(() => setIsIncorrect(false), INCORRECT_DELAY);
+      setMistakes(newMistakes);
+      setAttemptHistory(newAttemptHistory);
+      saveGameState({
+        mistakes: newMistakes,
+        solvedGroups,
+        attemptHistory: newAttemptHistory,
+        words,
+      });
+    }
   }, [
     selectedWords,
     getCategoryForWord,
@@ -198,6 +227,8 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
               isWordSolved={isWordSolved}
               getWordDifficulty={getWordDifficulty}
               onWordClick={handleWordClick}
+              isIncorrect={isIncorrect}
+              animatingWords={animatingWords}
             />
 
             <MistakesIndicator mistakes={mistakes} maxMistakes={MAX_MISTAKES} />
