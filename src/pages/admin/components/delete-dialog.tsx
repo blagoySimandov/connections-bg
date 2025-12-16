@@ -1,5 +1,5 @@
-import type { Puzzle } from "../../../types/puzzle";
-import { Button } from "../../../components/ui/button";
+import type { Puzzle } from "@/shared/types";
+import { Button } from "@/shared/ui";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../../components/ui/dialog";
+} from "@/shared/ui";
 
 interface DeleteDialogProps {
   open: boolean;

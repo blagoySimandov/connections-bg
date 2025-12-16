@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
-import { GoogleLoginButton } from "./google-login-button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui";
+import { GoogleLoginButton } from "./components";
 
 export function LoginPage() {
   return (
