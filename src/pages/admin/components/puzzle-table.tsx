@@ -1,5 +1,5 @@
-import type { Puzzle } from "../../../types/puzzle";
-import { Button } from "../../../components/ui/button";
+import type { Puzzle } from "@/shared/types";
+import { Button } from "@/shared/ui";
 import {
   Table,
   TableBody,
@@ -7,7 +7,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../../components/ui/table";
+} from "@/shared/ui";
 import { formatDateForDisplay } from "../utils";
 
 interface PuzzleTableProps {

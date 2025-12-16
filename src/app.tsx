@@ -1,9 +1,8 @@
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router";
-import { AuthProvider, ProtectedRoute, AdminRoute } from "./auth";
-import { RootLayout } from "./components/layout";
-import { LoginPage, GamePage } from "./pages";
-import { AdminPage } from "./pages/admin";
+import { AuthProvider, ProtectedRoute, AdminRoute } from "@/shared";
+import { RootLayout } from "@/layout";
+import { LoginPage, GamePage, AdminPage } from "./pages";
 
 export function App() {
   return (

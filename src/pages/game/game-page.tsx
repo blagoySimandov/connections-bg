@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { ConnectionsGame } from "@/components/game/connections-game";
-import { connectionService } from "@/lib";
+import { ConnectionsGame } from "./components";
+import { puzzleService } from "@/shared/services";
 
 export function GamePage() {
   const currentDate = new Date();
   const { data: puzzle, isLoading, error } = useQuery({
     queryKey: ["puzzle", currentDate.toISOString().split("T")[0]],
-    queryFn: () => connectionService.getPuzzleByDate(currentDate),
+    queryFn: () => puzzleService.getPuzzleByDate(currentDate),
   });
 
   if (isLoading) return <div>Loading...</div>;

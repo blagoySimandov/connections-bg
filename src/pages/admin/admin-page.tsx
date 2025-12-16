@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../auth";
-import { connectionService } from "../../lib";
-import type { Puzzle } from "../../types/puzzle";
-import { Button } from "../../components/ui/button";
-import { Alert } from "../../components/ui/alert";
+import { useAuth } from "@/shared/hooks";
+import { puzzleService } from "@/shared/services";
+import type { Puzzle } from "@/shared/types";
+import { Button, Alert } from "@/shared/ui";
 import { PuzzleTable, PuzzleForm, DeleteDialog } from "./components";
 import { INITIAL_CATEGORIES } from "./constants";
+import type { CategoryForm } from "./types";
 import {
   buildSolutionFromCategories,
   buildCategoriesFromSolution,
@@ -13,7 +13,6 @@ import {
   updateCategoryWord,
   getInitialFormDate,
   formatDateForInput,
-  type CategoryForm,
 } from "./utils";
 
 interface FormData {
@@ -44,7 +43,7 @@ export function AdminPage() {
   async function loadPuzzles() {
     try {
       setLoading(true);
-      const data = await connectionService.getAll();
+      const data = await puzzleService.getAll();
       setPuzzles(data);
     } catch (err) {
       setError("Failed to load puzzles");
@@ -97,9 +96,9 @@ export function AdminPage() {
       };
 
       if (editingPuzzle?.id) {
-        await connectionService.update(editingPuzzle.id, puzzle);
+        await puzzleService.update(editingPuzzle.id, puzzle);
       } else {
-        await connectionService.create(puzzle, user!.uid);
+        await puzzleService.create(puzzle, user!.uid);
       }
 
       await loadPuzzles();
@@ -115,7 +114,7 @@ export function AdminPage() {
 
     try {
       setError(null);
-      await connectionService.delete(deletingPuzzle.id);
+      await puzzleService.delete(deletingPuzzle.id);
       await loadPuzzles();
       setIsDeleteDialogOpen(false);
       setDeletingPuzzle(null);
