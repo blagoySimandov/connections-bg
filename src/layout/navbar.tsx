@@ -27,26 +27,18 @@ export function Navbar() {
         {user && (
           <div className="flex items-center gap-2 md:gap-4">
             <Link to="/profile">
-              <Button variant="ghost" size="sm" className="text-xs md:text-sm">
-                <span className="hidden sm:inline">Profile</span>
+              <Button variant="ghost" size="sm" className="text-xs md:text-sm gap-2">
                 {user.photoURL && (
                   <img
                     src={user.photoURL}
                     alt={user.displayName || "User"}
-                    className="h-6 w-6 rounded-full sm:hidden"
+                    className="h-6 w-6 rounded-full"
                     referrerPolicy="no-referrer"
                   />
                 )}
+                <span>Profile</span>
               </Button>
             </Link>
-            {user.photoURL && (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || "User"}
-                className="hidden sm:block h-8 w-8 rounded-full"
-                referrerPolicy="no-referrer"
-              />
-            )}
             {user.displayName && (
               <span className="hidden md:inline text-sm">{user.displayName}</span>
             )}
@@ -56,8 +48,7 @@ export function Navbar() {
               onClick={() => signOut()}
               className="text-xs md:text-sm"
             >
-              <span className="hidden sm:inline">Sign out</span>
-              <span className="sm:hidden">Out</span>
+              Sign out
             </Button>
           </div>
         )}
