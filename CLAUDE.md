@@ -109,3 +109,24 @@ bun --hot ./index.ts
 ```
 
 For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
+
+## Folder Structure
+
+```
+src/
+├── shared/          # Cross-domain: types, constants, services, hooks, guards, providers, ui, utils
+├── layout/          # Layout components (navbar, root-layout)
+└── pages/           # Page-specific code
+    ├── login/
+    ├── game/        # types.ts, constants.ts, components/, hooks/, utils/
+    └── admin/       # types.ts, constants.ts, components/, hooks/, utils/
+```
+
+**Import Patterns:**
+
+- `@/shared`, `@/layout` - Cross-domain imports
+- Relative paths - Same-domain imports (within page)
+
+**Services:**
+
+- `authService`, `userService`, `puzzleService` - Exported from `@/shared/services`
