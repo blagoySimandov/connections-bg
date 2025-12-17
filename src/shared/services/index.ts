@@ -5,6 +5,7 @@ export { PuzzleService } from "./puzzle.service";
 export { GameHistoryService } from "./game-history.service";
 export { SyncService } from "./sync.service";
 export { UserStatsService } from "./user-stats.service";
+export * from "./analytics";
 
 import { auth, db } from "./firebase";
 import { AuthService } from "./auth.service";

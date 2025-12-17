@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { User } from "firebase/auth";
-import { authService, userService } from "../services";
+import { authService, userService, analyticsService, ANALYTICS_EVENTS } from "../services";
 import type { UserData } from "../types";
 
 interface AuthContextType {
@@ -27,8 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (user) {
         const data = await userService.getUserData(user.uid);
         setUserData(data);
+        analyticsService.setUserId(user.uid);
       } else {
         setUserData(null);
+        analyticsService.setUserId(null);
       }
 
       setLoading(false);
@@ -43,12 +45,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await userService.saveUserToFirestore(result.user);
       const data = await userService.getUserData(result.user.uid);
       setUserData(data);
+      analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_IN, {
+        method: "google",
+      });
     }
   };
 
   const handleSignOut = async () => {
     await authService.signOut();
     setUserData(null);
+    analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_OUT);
   };
 
   const value = {
