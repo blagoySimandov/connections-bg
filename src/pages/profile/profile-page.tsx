@@ -1,21 +1,12 @@
 import { useAuth } from "@/shared/hooks";
-import { Card, CardContent, CardHeader, CardTitle, Badge, Collapsible } from "@/shared/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui";
 import { useUserStats } from "./hooks/use-user-stats";
-
-const DIFFICULTY_COLORS = [
-  "bg-connections-easy text-connections-easy border-connections-easy",
-  "bg-connections-medium text-connections-medium border-connections-medium",
-  "bg-connections-hard text-connections-hard border-connections-hard",
-  "bg-connections-hardest text-connections-hardest border-connections-hardest",
-];
-
-const DIFFICULTY_LABELS = ["Easy", "Medium", "Hard", "Hardest"];
 
 export function ProfilePage() {
   const { user, userData } = useAuth();
-  const { stats, loading } = useUserStats(user?.uid);
+  const { data: stats, isLoading } = useUserStats(user?.uid);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <div className="text-center text-muted-foreground">Loading...</div>
@@ -143,96 +134,6 @@ export function ProfilePage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Recent Games */}
-      {stats && stats.recentGames.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Games</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {stats.recentGames.map((game, index) => (
-                <Collapsible
-                  key={`${game.puzzleId}-${index}`}
-                  trigger={
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">
-                          {new Date(game.puzzleDate).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {game.mistakes} {game.mistakes === 1 ? "mistake" : "mistakes"}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 mr-2">
-                        <Badge
-                          variant={game.won ? "default" : "destructive"}
-                          className="text-xs"
-                        >
-                          {game.won ? "Won" : "Lost"}
-                        </Badge>
-                        {game.won && game.mistakes === 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            Perfect
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  }
-                >
-                  <div className="mt-4 space-y-4">
-                    {/* Solved Groups */}
-                    {game.solvedGroups.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2">Solved Groups</h4>
-                        <div className="space-y-2">
-                          {game.solvedGroups.map((group, groupIndex) => (
-                            <div
-                              key={groupIndex}
-                              className={`p-3 rounded-lg border bg-opacity-10 ${DIFFICULTY_COLORS[group.difficulty]}`}
-                            >
-                              <div className="text-xs font-medium mb-1">
-                                {DIFFICULTY_LABELS[group.difficulty]}: {group.category}
-                              </div>
-                              <div className="text-xs opacity-90">
-                                {group.words.join(", ")}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Attempt History */}
-                    {game.attemptHistory.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-semibold mb-2">
-                          Attempts ({game.attemptHistory.length})
-                        </h4>
-                        <div className="space-y-1">
-                          {game.attemptHistory.map((attempt, attemptIndex) => (
-                            <div
-                              key={attemptIndex}
-                              className="text-xs text-muted-foreground"
-                            >
-                              Attempt {attemptIndex + 1}: {attempt.categories.length} {attempt.categories.length === 1 ? "category" : "categories"}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Collapsible>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Empty State */}
       {stats && stats.totalGames === 0 && (
