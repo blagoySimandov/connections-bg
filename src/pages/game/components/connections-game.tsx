@@ -17,7 +17,7 @@ import {
   WORD_SUBMIT_DELAY,
 } from "../constants";
 import { useAuth } from "@/shared/hooks/use-auth";
-import { gameHistoryService, puzzleService } from "@/shared/services";
+import { syncService } from "@/shared/services";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -26,6 +26,8 @@ interface ConnectionsGameProps {
 const MAX_MISTAKES = 4;
 
 export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
+  const { user } = useAuth();
+
   const {
     words,
     selectedWords,
@@ -40,7 +42,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setAttemptHistory,
     saveGameState,
     triggerOneAwayMessage,
-  } = useGameState(puzzle);
+  } = useGameState(puzzle, user?.uid || null);
 
   const {
     getCategoryForWord,
@@ -59,8 +61,6 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
 
-  const { user } = useAuth();
-
   const syncGameCompletion = useCallback(
     (
       won: boolean,
@@ -70,25 +70,17 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     ) => {
       if (!puzzle.id) return;
 
-      puzzleService.incrementPlayedCount(puzzle.id).catch(console.error);
-      if (won) {
-        puzzleService.incrementSolvedCount(puzzle.id).catch(console.error);
-      }
-
-      if (user) {
-        gameHistoryService
-          .saveGameHistory(user.uid, puzzle.id, {
-            puzzleId: puzzle.id,
-            puzzleDate: puzzle.date.toISOString(),
-            completed: true,
-            won,
-            mistakes: finalMistakes,
-            solvedGroups: finalSolvedGroups,
-            attemptHistory: finalAttemptHistory,
-            completedAt: new Date().toISOString(),
-          })
-          .catch(console.error);
-      }
+      syncService.syncGameCompletion(
+        user?.uid || null,
+        puzzle.id,
+        puzzle.date,
+        {
+          won,
+          mistakes: finalMistakes,
+          solvedGroups: finalSolvedGroups,
+          attemptHistory: finalAttemptHistory,
+        }
+      );
     },
     [user, puzzle],
   );
