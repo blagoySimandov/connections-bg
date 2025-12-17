@@ -1,6 +1,15 @@
 import { useAuth } from "@/shared/hooks";
-import { Card, CardContent, CardHeader, CardTitle, Badge } from "@/shared/ui";
+import { Card, CardContent, CardHeader, CardTitle, Badge, Collapsible } from "@/shared/ui";
 import { useUserStats } from "./hooks/use-user-stats";
+
+const DIFFICULTY_COLORS = [
+  "bg-connections-easy text-connections-easy border-connections-easy",
+  "bg-connections-medium text-connections-medium border-connections-medium",
+  "bg-connections-hard text-connections-hard border-connections-hard",
+  "bg-connections-hardest text-connections-hardest border-connections-hardest",
+];
+
+const DIFFICULTY_LABELS = ["Easy", "Medium", "Hard", "Hardest"];
 
 export function ProfilePage() {
   const { user, userData } = useAuth();
@@ -102,76 +111,38 @@ export function ProfilePage() {
         </Card>
       </div>
 
-      {/* Detailed Stats */}
-      <div className="grid md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Performance</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Wins</span>
-              <span className="font-semibold">{stats?.totalWins || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Losses</span>
-              <span className="font-semibold">{stats?.totalLosses || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Avg. Mistakes
-              </span>
-              <span className="font-semibold">
-                {stats?.averageMistakes.toFixed(1) || 0}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">
-                Longest Streak
-              </span>
-              <span className="font-semibold">
-                {stats?.longestStreak || 0}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Groups Solved by Difficulty</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-connections-easy">
-                Easy
-              </span>
-              <span className="font-semibold">{stats?.easyCompleted || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-connections-medium">
-                Medium
-              </span>
-              <span className="font-semibold">
-                {stats?.mediumCompleted || 0}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-connections-hard">
-                Hard
-              </span>
-              <span className="font-semibold">{stats?.hardCompleted || 0}</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-connections-hardest">
-                Hardest
-              </span>
-              <span className="font-semibold">
-                {stats?.hardestCompleted || 0}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Performance Stats */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Performance</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Wins</span>
+            <span className="font-semibold">{stats?.totalWins || 0}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">Losses</span>
+            <span className="font-semibold">{stats?.totalLosses || 0}</span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Avg. Mistakes
+            </span>
+            <span className="font-semibold">
+              {stats?.averageMistakes.toFixed(1) || 0}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Longest Streak
+            </span>
+            <span className="font-semibold">
+              {stats?.longestStreak || 0}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Recent Games */}
       {stats && stats.recentGames.length > 0 && (
@@ -182,36 +153,81 @@ export function ProfilePage() {
           <CardContent>
             <div className="space-y-3">
               {stats.recentGames.map((game, index) => (
-                <div
+                <Collapsible
                   key={`${game.puzzleId}-${index}`}
-                  className="flex items-center justify-between py-2 border-b last:border-b-0"
+                  trigger={
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">
+                          {new Date(game.puzzleDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {game.mistakes} {game.mistakes === 1 ? "mistake" : "mistakes"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mr-2">
+                        <Badge
+                          variant={game.won ? "default" : "destructive"}
+                          className="text-xs"
+                        >
+                          {game.won ? "Won" : "Lost"}
+                        </Badge>
+                        {game.won && game.mistakes === 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            Perfect
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  }
                 >
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">
-                      {new Date(game.puzzleDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {game.mistakes} {game.mistakes === 1 ? "mistake" : "mistakes"}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge
-                      variant={game.won ? "default" : "destructive"}
-                      className="text-xs"
-                    >
-                      {game.won ? "Won" : "Lost"}
-                    </Badge>
-                    {game.won && game.mistakes === 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        Perfect
-                      </Badge>
+                  <div className="mt-4 space-y-4">
+                    {/* Solved Groups */}
+                    {game.solvedGroups.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2">Solved Groups</h4>
+                        <div className="space-y-2">
+                          {game.solvedGroups.map((group, groupIndex) => (
+                            <div
+                              key={groupIndex}
+                              className={`p-3 rounded-lg border bg-opacity-10 ${DIFFICULTY_COLORS[group.difficulty]}`}
+                            >
+                              <div className="text-xs font-medium mb-1">
+                                {DIFFICULTY_LABELS[group.difficulty]}: {group.category}
+                              </div>
+                              <div className="text-xs opacity-90">
+                                {group.words.join(", ")}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Attempt History */}
+                    {game.attemptHistory.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-semibold mb-2">
+                          Attempts ({game.attemptHistory.length})
+                        </h4>
+                        <div className="space-y-1">
+                          {game.attemptHistory.map((attempt, attemptIndex) => (
+                            <div
+                              key={attemptIndex}
+                              className="text-xs text-muted-foreground"
+                            >
+                              Attempt {attemptIndex + 1}: {attempt.categories.length} {attempt.categories.length === 1 ? "category" : "categories"}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
+                </Collapsible>
               ))}
             </div>
           </CardContent>

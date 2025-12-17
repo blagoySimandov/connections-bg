@@ -2,14 +2,17 @@ import type { Firestore } from "firebase/firestore/lite";
 import type { SolvedGroup, AttemptHistory, GameHistory } from "../types";
 import { GameHistoryService } from "./game-history.service";
 import { PuzzleService } from "./puzzle.service";
+import { UserStatsService } from "./user-stats.service";
 
 export class SyncService {
   private gameHistoryService: GameHistoryService;
   private puzzleService: PuzzleService;
+  private userStatsService: UserStatsService;
 
   constructor(db: Firestore) {
     this.gameHistoryService = new GameHistoryService(db);
     this.puzzleService = new PuzzleService(db);
+    this.userStatsService = new UserStatsService(db);
   }
 
   /**
@@ -47,7 +50,7 @@ export class SyncService {
       console.error("Failed to update puzzle stats:", error);
     }
 
-    // Save user history (only if logged in)
+    // Save user history and update stats (only if logged in)
     if (userId) {
       try {
         await this.gameHistoryService.saveGameHistory(userId, puzzleDate, {
@@ -59,6 +62,13 @@ export class SyncService {
           solvedGroups: gameData.solvedGroups,
           attemptHistory: gameData.attemptHistory,
           completedAt: new Date().toISOString(),
+        });
+
+        // Update user stats
+        await this.userStatsService.updateUserStats(userId, {
+          won: gameData.won,
+          mistakes: gameData.mistakes,
+          gameDate: puzzleDate.toISOString().split("T")[0], // Use date only (YYYY-MM-DD)
         });
       } catch (error) {
         console.error("Failed to save game history:", error);
