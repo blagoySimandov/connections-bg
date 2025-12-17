@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import type { Puzzle } from "@/shared/types";
 import { useGameState } from "../hooks/use-game-state";
 import { useGameLogic } from "../hooks/use-game-logic";
@@ -16,6 +16,8 @@ import {
   INCORRECT_DELAY,
   WORD_SUBMIT_DELAY,
 } from "../constants";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { gameHistoryService, puzzleService } from "@/shared/services";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -56,6 +58,37 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
+
+  const { user } = useAuth();
+  const hasSyncedRef = useRef(false);
+
+  useEffect(() => {
+    if ((gameWon || gameLost) && !hasSyncedRef.current && puzzle.id) {
+      hasSyncedRef.current = true;
+
+      // Update puzzle stats (for all users)
+      puzzleService.incrementPlayedCount(puzzle.id).catch(console.error);
+      if (gameWon) {
+        puzzleService.incrementSolvedCount(puzzle.id).catch(console.error);
+      }
+
+      // Save user history (only if logged in)
+      if (user) {
+        gameHistoryService
+          .saveGameHistory(user.uid, puzzle.id, {
+            puzzleId: puzzle.id,
+            puzzleDate: puzzle.date.toISOString(),
+            completed: true,
+            won: gameWon,
+            mistakes,
+            solvedGroups,
+            attemptHistory,
+            completedAt: new Date().toISOString(),
+          })
+          .catch(console.error);
+      }
+    }
+  }, [gameWon, gameLost, user, puzzle, mistakes, solvedGroups, attemptHistory]);
 
   const handleResultsOpenChange = (open: boolean) => {
     if (!open) {

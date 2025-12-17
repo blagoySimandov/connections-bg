@@ -5,6 +5,8 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
+  updateDoc,
+  increment,
   query,
   orderBy,
   where,
@@ -116,5 +118,19 @@ export class PuzzleService {
   async delete(id: string): Promise<void> {
     const connectionRef = doc(this.db, this.collectionName, id);
     await deleteDoc(connectionRef);
+  }
+
+  async incrementPlayedCount(puzzleId: string): Promise<void> {
+    const connectionRef = doc(this.db, this.collectionName, puzzleId);
+    await updateDoc(connectionRef, {
+      "stats.playedCount": increment(1),
+    });
+  }
+
+  async incrementSolvedCount(puzzleId: string): Promise<void> {
+    const connectionRef = doc(this.db, this.collectionName, puzzleId);
+    await updateDoc(connectionRef, {
+      "stats.solvedCount": increment(1),
+    });
   }
 }
