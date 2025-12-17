@@ -8,7 +8,7 @@ interface UserInfoCardProps {
 
 export function UserInfoCard({ user, memberSince }: UserInfoCardProps) {
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("bg-BG", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -31,7 +31,7 @@ export function UserInfoCard({ user, memberSince }: UserInfoCardProps) {
             <h1 className="text-2xl font-bold">{user.displayName}</h1>
             <p className="text-sm text-muted-foreground">{user.email}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              Member since {formatDate(memberSince)}
+              Член от {formatDate(memberSince)}
             </p>
           </div>
         </div>

@@ -10,17 +10,17 @@ export function PerformanceCard({ stats }: PerformanceCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Performance</CardTitle>
+        <CardTitle>Представяне</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <PerformanceStatRow label="Wins" value={stats?.totalWins || 0} />
-        <PerformanceStatRow label="Losses" value={stats?.totalLosses || 0} />
+        <PerformanceStatRow label="Победи" value={stats?.totalWins || 0} />
+        <PerformanceStatRow label="Загуби" value={stats?.totalLosses || 0} />
         <PerformanceStatRow
-          label="Avg. Mistakes"
+          label="Средно грешки"
           value={stats?.averageMistakes.toFixed(1) || 0}
         />
         <PerformanceStatRow
-          label="Longest Streak"
+          label="Най-дълга серия"
           value={stats?.longestStreak || 0}
         />
       </CardContent>

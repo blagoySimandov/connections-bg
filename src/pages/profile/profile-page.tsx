@@ -14,7 +14,7 @@ export function ProfilePage() {
   if (isLoading) {
     return (
       <div className="container max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center text-muted-foreground">Loading...</div>
+        <div className="text-center text-muted-foreground">Зареждане...</div>
       </div>
     );
   }

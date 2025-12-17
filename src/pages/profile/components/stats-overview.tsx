@@ -8,10 +8,10 @@ interface StatsOverviewProps {
 export function StatsOverview({ stats }: StatsOverviewProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <StatCard label="Total Games" value={stats?.totalGames || 0} />
-      <StatCard label="Win Rate" value={`${stats?.winRate.toFixed(0) || 0}%`} />
-      <StatCard label="Current Streak" value={stats?.currentStreak || 0} />
-      <StatCard label="Perfect Games" value={stats?.perfectGames || 0} />
+      <StatCard label="Общо игри" value={stats?.totalGames || 0} />
+      <StatCard label="Процент победи" value={`${stats?.winRate.toFixed(0) || 0}%`} />
+      <StatCard label="Текуща серия" value={stats?.currentStreak || 0} />
+      <StatCard label="Перфектни игри" value={stats?.perfectGames || 0} />
     </div>
   );
 }

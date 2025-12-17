@@ -5,7 +5,7 @@ export function EmptyState() {
     <Card>
       <CardContent className="py-12 text-center">
         <p className="text-muted-foreground">
-          No games played yet. Start playing to see your stats!
+          Все още няма изиграни игри. Започнете да играете, за да видите вашата статистика!
         </p>
       </CardContent>
     </Card>
