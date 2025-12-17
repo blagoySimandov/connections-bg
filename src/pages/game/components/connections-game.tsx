@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { Puzzle } from "@/shared/types";
+import type { Puzzle, SolvedGroup, AttemptHistory } from "@/shared/types";
 import { useGameState } from "../hooks/use-game-state";
 import { useGameLogic } from "../hooks/use-game-logic";
 import { shuffleArray } from "../utils/game-utils";
@@ -16,6 +16,8 @@ import {
   INCORRECT_DELAY,
   WORD_SUBMIT_DELAY,
 } from "../constants";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { syncService } from "@/shared/services";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -24,6 +26,8 @@ interface ConnectionsGameProps {
 const MAX_MISTAKES = 4;
 
 export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
+  const { user } = useAuth();
+
   const {
     words,
     selectedWords,
@@ -38,7 +42,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setAttemptHistory,
     saveGameState,
     triggerOneAwayMessage,
-  } = useGameState(puzzle);
+  } = useGameState(puzzle, user?.uid || null);
 
   const {
     getCategoryForWord,
@@ -56,6 +60,30 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
+
+  const syncGameCompletion = useCallback(
+    (
+      won: boolean,
+      finalMistakes: number,
+      finalSolvedGroups: SolvedGroup[],
+      finalAttemptHistory: AttemptHistory[],
+    ) => {
+      if (!puzzle.id) return;
+
+      syncService.syncGameCompletion(
+        user?.uid || null,
+        puzzle.id,
+        puzzle.date,
+        {
+          won,
+          mistakes: finalMistakes,
+          solvedGroups: finalSolvedGroups,
+          attemptHistory: finalAttemptHistory,
+        }
+      );
+    },
+    [user, puzzle],
+  );
 
   const handleResultsOpenChange = (open: boolean) => {
     if (!open) {
@@ -127,6 +155,16 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           (word: string) => !theme.words.includes(word),
         );
         const newAttemptHistory = [...attemptHistory, { categories }];
+        const gameIsWon = newSolvedGroups.length === 4;
+
+        if (gameIsWon) {
+          syncGameCompletion(
+            true,
+            mistakes,
+            newSolvedGroups,
+            newAttemptHistory,
+          );
+        }
 
         setAnimatingWords(theme.words);
         setSelectedWords(new Set());
@@ -160,6 +198,8 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setIsIncorrect(true);
 
     if (isLastMistake) {
+      syncGameCompletion(false, newMistakes, solvedGroups, newAttemptHistory);
+
       setTimeout(() => {
         setIsIncorrect(false);
         setMistakes(newMistakes);
@@ -198,6 +238,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setMistakes,
     saveGameState,
     triggerOneAwayMessage,
+    syncGameCompletion,
   ]);
 
   return (
