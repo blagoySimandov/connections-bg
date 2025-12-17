@@ -66,17 +66,15 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
       won: boolean,
       finalMistakes: number,
       finalSolvedGroups: SolvedGroup[],
-      finalAttemptHistory: AttemptHistory[]
+      finalAttemptHistory: AttemptHistory[],
     ) => {
       if (!puzzle.id) return;
 
-      // Update puzzle stats (for all users)
       puzzleService.incrementPlayedCount(puzzle.id).catch(console.error);
       if (won) {
         puzzleService.incrementSolvedCount(puzzle.id).catch(console.error);
       }
 
-      // Save user history (only if logged in)
       if (user) {
         gameHistoryService
           .saveGameHistory(user.uid, puzzle.id, {
@@ -92,7 +90,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           .catch(console.error);
       }
     },
-    [user, puzzle]
+    [user, puzzle],
   );
 
   const handleResultsOpenChange = (open: boolean) => {
@@ -165,10 +163,15 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
           (word: string) => !theme.words.includes(word),
         );
         const newAttemptHistory = [...attemptHistory, { categories }];
+        const gameIsWon = newSolvedGroups.length === 4;
 
-        // Check if game is won
-        if (newSolvedGroups.length === 4) {
-          syncGameCompletion(true, mistakes, newSolvedGroups, newAttemptHistory);
+        if (gameIsWon) {
+          syncGameCompletion(
+            true,
+            mistakes,
+            newSolvedGroups,
+            newAttemptHistory,
+          );
         }
 
         setAnimatingWords(theme.words);
@@ -203,7 +206,6 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setIsIncorrect(true);
 
     if (isLastMistake) {
-      // Game is lost
       syncGameCompletion(false, newMistakes, solvedGroups, newAttemptHistory);
 
       setTimeout(() => {
