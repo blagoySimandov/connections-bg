@@ -18,13 +18,24 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /history/{puzzleId} {
+        allow write: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
     // if request.auth != null || isTodayConnection()
 
     match /connections/{connectionId} {
-      allow read: if true; 
-      allow create, update, delete: if isAdmin();
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() ||
+                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stats']) &&
+                        (request.resource.data.stats.playedCount == resource.data.stats.playedCount + 1 ||
+                         request.resource.data.stats.playedCount == resource.data.stats.playedCount) &&
+                        (request.resource.data.stats.solvedCount == resource.data.stats.solvedCount + 1 ||
+                         request.resource.data.stats.solvedCount == resource.data.stats.solvedCount));
     }
   }
 }

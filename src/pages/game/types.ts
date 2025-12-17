@@ -1,12 +1,6 @@
-export interface SolvedGroup {
-  category: string;
-  difficulty: 0 | 1 | 2 | 3;
-  words: string[];
-}
+import type { SolvedGroup, AttemptHistory } from "@/shared/types";
 
-export interface AttemptHistory {
-  categories: number[];
-}
+export type { SolvedGroup, AttemptHistory };
 
 export interface GameState {
   mistakes: number;

@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { Puzzle } from "@/shared/types";
+import type { Puzzle, SolvedGroup, AttemptHistory } from "@/shared/types";
 import { useGameState } from "../hooks/use-game-state";
 import { useGameLogic } from "../hooks/use-game-logic";
 import { shuffleArray } from "../utils/game-utils";
@@ -16,6 +16,8 @@ import {
   INCORRECT_DELAY,
   WORD_SUBMIT_DELAY,
 } from "../constants";
+import { useAuth } from "@/shared/hooks/use-auth";
+import { gameHistoryService, puzzleService } from "@/shared/services";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -56,6 +58,42 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [animatingWords, setAnimatingWords] = useState<string[]>([]);
   const isResultsOpen = (gameWon || gameLost) && !hasClosedResults;
+
+  const { user } = useAuth();
+
+  const syncGameCompletion = useCallback(
+    (
+      won: boolean,
+      finalMistakes: number,
+      finalSolvedGroups: SolvedGroup[],
+      finalAttemptHistory: AttemptHistory[]
+    ) => {
+      if (!puzzle.id) return;
+
+      // Update puzzle stats (for all users)
+      puzzleService.incrementPlayedCount(puzzle.id).catch(console.error);
+      if (won) {
+        puzzleService.incrementSolvedCount(puzzle.id).catch(console.error);
+      }
+
+      // Save user history (only if logged in)
+      if (user) {
+        gameHistoryService
+          .saveGameHistory(user.uid, puzzle.id, {
+            puzzleId: puzzle.id,
+            puzzleDate: puzzle.date.toISOString(),
+            completed: true,
+            won,
+            mistakes: finalMistakes,
+            solvedGroups: finalSolvedGroups,
+            attemptHistory: finalAttemptHistory,
+            completedAt: new Date().toISOString(),
+          })
+          .catch(console.error);
+      }
+    },
+    [user, puzzle]
+  );
 
   const handleResultsOpenChange = (open: boolean) => {
     if (!open) {
@@ -128,6 +166,11 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
         );
         const newAttemptHistory = [...attemptHistory, { categories }];
 
+        // Check if game is won
+        if (newSolvedGroups.length === 4) {
+          syncGameCompletion(true, mistakes, newSolvedGroups, newAttemptHistory);
+        }
+
         setAnimatingWords(theme.words);
         setSelectedWords(new Set());
 
@@ -160,6 +203,9 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setIsIncorrect(true);
 
     if (isLastMistake) {
+      // Game is lost
+      syncGameCompletion(false, newMistakes, solvedGroups, newAttemptHistory);
+
       setTimeout(() => {
         setIsIncorrect(false);
         setMistakes(newMistakes);
@@ -198,6 +244,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     setMistakes,
     saveGameState,
     triggerOneAwayMessage,
+    syncGameCompletion,
   ]);
 
   return (
