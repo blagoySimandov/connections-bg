@@ -17,14 +17,14 @@ export function GameActions({
   onSubmit,
 }: GameActionsProps) {
   return (
-    <div className="flex justify-center gap-4">
-      <Button variant="outline" onClick={onShuffle}>
+    <div className="flex justify-center gap-2 sm:gap-4">
+      <Button variant="outline" onClick={onShuffle} className="text-xs px-3 py-2 sm:text-sm sm:px-4 sm:py-2">
         Разбъркай
       </Button>
-      <Button variant="outline" onClick={onDeselectAll}>
-        Отмаркирай всички
+      <Button variant="outline" onClick={onDeselectAll} className="text-xs px-3 py-2 sm:text-sm sm:px-4 sm:py-2">
+        Отмаркирай
       </Button>
-      <Button onClick={onSubmit} disabled={selectedCount !== 4}>
+      <Button onClick={onSubmit} disabled={selectedCount !== 4} className="text-xs px-3 py-2 sm:text-sm sm:px-4 sm:py-2">
         Провери
       </Button>
     </div>

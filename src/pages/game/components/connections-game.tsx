@@ -286,7 +286,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   ]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 relative">
+    <div className="max-w-2xl mx-auto px-2 py-6 sm:p-6 relative">
       <OneAwayPopup show={showOneAway} />
 
       <GameHeader date={puzzle.date} />
