@@ -30,7 +30,7 @@ export function WordGrid({
   );
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
       {unsolvedWords.map((word, index) => (
         <WordTile
           key={index}
