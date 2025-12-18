@@ -19,6 +19,18 @@ export interface Puzzle {
 
 export type UserRole = "admin" | "user";
 
+export interface UserStats {
+  totalGames: number;
+  totalWins: number;
+  totalLosses: number;
+  winRate: number;
+  averageMistakes: number;
+  perfectGames: number;
+  currentStreak: number;
+  longestStreak: number;
+  lastGameDate: string | null;
+}
+
 export interface UserData {
   uid: string;
   email: string | null;
@@ -27,6 +39,7 @@ export interface UserData {
   createdAt: string;
   lastLoginAt: string;
   role: UserRole;
+  stats?: UserStats;
 }
 
 export interface SolvedGroup {

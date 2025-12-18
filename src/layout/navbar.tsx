@@ -7,36 +7,47 @@ export function Navbar() {
 
   return (
     <nav className="border-b border-border bg-background">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-6">
+      <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
+        <div className="flex items-center gap-3 md:gap-6">
           <Link
             to="/"
-            className="text-xl font-bold hover:text-primary transition-colors"
+            className="text-lg md:text-xl font-bold hover:text-primary transition-colors"
           >
             Connections
           </Link>
           {userData?.role === "admin" && (
             <Link to="/admin">
-              <Button variant="outline" size="sm">
-                Admin Panel
+              <Button variant="outline" size="sm" className="text-xs md:text-sm">
+                <span className="hidden sm:inline">Admin Panel</span>
+                <span className="sm:hidden">Admin</span>
               </Button>
             </Link>
           )}
         </div>
         {user && (
-          <div className="flex items-center gap-4">
-            {user.photoURL && (
-              <img
-                src={user.photoURL}
-                alt={user.displayName || "User"}
-                className="h-8 w-8 rounded-full"
-                referrerPolicy="no-referrer"
-              />
-            )}
+          <div className="flex items-center gap-2 md:gap-4">
+            <Link to="/profile">
+              <Button variant="ghost" size="sm" className="text-xs md:text-sm gap-2">
+                {user.photoURL && (
+                  <img
+                    src={user.photoURL}
+                    alt={user.displayName || "User"}
+                    className="h-6 w-6 rounded-full"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <span>Profile</span>
+              </Button>
+            </Link>
             {user.displayName && (
-              <span className="text-sm">{user.displayName}</span>
+              <span className="hidden md:inline text-sm">{user.displayName}</span>
             )}
-            <Button variant="ghost" size="sm" onClick={() => signOut()}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => signOut()}
+              className="text-xs md:text-sm"
+            >
               Sign out
             </Button>
           </div>
@@ -45,7 +56,7 @@ export function Navbar() {
         {!user && (
           <div className="flex items-center gap-4">
             <Link to="/login">
-              <Button>Log in</Button>
+              <Button size="sm">Log in</Button>
             </Link>
           </div>
         )}
