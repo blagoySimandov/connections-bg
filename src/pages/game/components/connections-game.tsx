@@ -17,7 +17,8 @@ import {
   WORD_SUBMIT_DELAY,
 } from "../constants";
 import { useAuth } from "@/shared/hooks/use-auth";
-import { syncService } from "@/shared/services";
+import { useAnalytics } from "@/shared/hooks/use-analytics";
+import { syncService, ANALYTICS_EVENTS } from "@/shared/services";
 
 interface ConnectionsGameProps {
   puzzle: Puzzle;
@@ -27,6 +28,7 @@ const MAX_MISTAKES = 4;
 
 export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   const { user } = useAuth();
+  const { trackEvent } = useAnalytics();
 
   const {
     words,
@@ -108,7 +110,12 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
       attemptHistory,
       words: newWords,
     });
-  }, [words, solvedGroups, mistakes, attemptHistory, setWords, saveGameState]);
+
+    trackEvent(ANALYTICS_EVENTS.SHUFFLE_CLICKED, {
+      puzzle_id: puzzle.id,
+      puzzle_date: puzzle.date,
+    });
+  }, [words, solvedGroups, mistakes, attemptHistory, setWords, saveGameState, trackEvent, puzzle]);
 
   const handleWordClick = useCallback(
     (word: string) => {
@@ -129,7 +136,12 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
 
   const handleDeselectAll = useCallback(() => {
     setSelectedWords(new Set());
-  }, [setSelectedWords]);
+
+    trackEvent(ANALYTICS_EVENTS.DESELECT_CLICKED, {
+      puzzle_id: puzzle.id,
+      puzzle_date: puzzle.date,
+    });
+  }, [setSelectedWords, trackEvent, puzzle]);
 
   const handleSubmit = useCallback(() => {
     if (selectedWords.size !== 4) return;
@@ -164,6 +176,14 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
             newSolvedGroups,
             newAttemptHistory,
           );
+
+          trackEvent(ANALYTICS_EVENTS.GAME_COMPLETED, {
+            puzzle_id: puzzle.id,
+            puzzle_date: puzzle.date,
+            won: true,
+            mistakes: mistakes,
+            total_attempts: newAttemptHistory.length,
+          });
         }
 
         setAnimatingWords(theme.words);
@@ -190,15 +210,36 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     const newMistakes = mistakes + 1;
     const newAttemptHistory = [...attemptHistory, { categories }];
     const isLastMistake = newMistakes >= MAX_MISTAKES;
+    const oneAway = isOneAway(categories);
 
-    if (isOneAway(categories)) {
+    if (oneAway) {
       triggerOneAwayMessage();
+      trackEvent(ANALYTICS_EVENTS.ONE_AWAY_DETECTED, {
+        puzzle_id: puzzle.id,
+        puzzle_date: puzzle.date,
+        mistakes: newMistakes,
+      });
     }
+
+    trackEvent(ANALYTICS_EVENTS.MISTAKE_MADE, {
+      puzzle_id: puzzle.id,
+      puzzle_date: puzzle.date,
+      mistakes: newMistakes,
+      one_away: oneAway,
+    });
 
     setIsIncorrect(true);
 
     if (isLastMistake) {
       syncGameCompletion(false, newMistakes, solvedGroups, newAttemptHistory);
+
+      trackEvent(ANALYTICS_EVENTS.GAME_COMPLETED, {
+        puzzle_id: puzzle.id,
+        puzzle_date: puzzle.date,
+        won: false,
+        mistakes: newMistakes,
+        total_attempts: newAttemptHistory.length,
+      });
 
       setTimeout(() => {
         setIsIncorrect(false);
@@ -226,6 +267,8 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     selectedWords,
     getCategoryForWord,
     puzzle.solution,
+    puzzle.id,
+    puzzle.date,
     solvedGroups,
     words,
     attemptHistory,
@@ -239,6 +282,7 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
     saveGameState,
     triggerOneAwayMessage,
     syncGameCompletion,
+    trackEvent,
   ]);
 
   return (

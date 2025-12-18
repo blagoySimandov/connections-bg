@@ -8,7 +8,7 @@ export class GameHistoryService {
    * Get date string in format YYYY-MM-DD for use as document ID
    */
   private getDateKey(date: Date): string {
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split("T")[0] || "";
   }
 
   /**
@@ -17,7 +17,7 @@ export class GameHistoryService {
   async saveGameHistory(
     userId: string,
     puzzleDate: Date,
-    historyData: GameHistory
+    historyData: GameHistory,
   ): Promise<void> {
     const dateKey = this.getDateKey(puzzleDate);
     const historyRef = doc(this.db, "users", userId, "history", dateKey);
@@ -29,7 +29,7 @@ export class GameHistoryService {
    */
   async getGameHistory(
     userId: string,
-    puzzleDate: Date
+    puzzleDate: Date,
   ): Promise<GameHistory | null> {
     const dateKey = this.getDateKey(puzzleDate);
     const historyRef = doc(this.db, "users", userId, "history", dateKey);
