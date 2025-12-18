@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { Button } from "@/shared/ui";
 import { useAuth } from "@/shared/hooks";
+import logo from "@/logo.png";
 
 export function Navbar() {
   const { user, userData, signOut } = useAuth();
@@ -11,8 +12,9 @@ export function Navbar() {
         <div className="flex items-center gap-3 md:gap-6">
           <Link
             to="/"
-            className="text-lg md:text-xl font-bold hover:text-primary transition-colors"
+            className="flex items-center gap-2 text-lg md:text-xl font-bold hover:text-primary transition-colors"
           >
+            <img src={logo} alt="Connections Logo" className="h-6 w-6 md:h-8 md:w-8" />
             Connections
           </Link>
           {userData?.role === "admin" && (
