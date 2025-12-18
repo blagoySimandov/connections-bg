@@ -6,6 +6,7 @@ export * from "./collapsible";
 export * from "./dialog";
 export * from "./input";
 export * from "./label";
+export * from "./loader";
 export * from "./select";
 export * from "./table";
 export * from "./textarea";

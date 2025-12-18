@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/shared/hooks";
 import { puzzleService } from "@/shared/services";
 import type { Puzzle } from "@/shared/types";
-import { Button, Alert } from "@/shared/ui";
+import { Button, Alert, Loader } from "@/shared/ui";
 import { PuzzleTable, PuzzleForm, DeleteDialog } from "./components";
 import { INITIAL_CATEGORIES } from "./constants";
 import type { CategoryForm } from "./types";
@@ -150,7 +150,7 @@ export function AdminPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-foreground">Loading...</div>
+        <Loader />
       </div>
     );
   }
