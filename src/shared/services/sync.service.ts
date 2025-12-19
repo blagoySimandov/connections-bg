@@ -21,7 +21,7 @@ export class SyncService {
    */
   async loadGameHistory(
     userId: string,
-    puzzleDate: Date
+    puzzleDate: Date,
   ): Promise<GameHistory | null> {
     return this.gameHistoryService.getGameHistory(userId, puzzleDate);
   }
@@ -38,7 +38,7 @@ export class SyncService {
       mistakes: number;
       solvedGroups: SolvedGroup[];
       attemptHistory: AttemptHistory[];
-    }
+    },
   ): Promise<void> {
     // Update puzzle stats (for all users)
     try {
@@ -68,7 +68,7 @@ export class SyncService {
         await this.userStatsService.updateUserStats(userId, {
           won: gameData.won,
           mistakes: gameData.mistakes,
-          gameDate: puzzleDate.toISOString().split("T")[0], // Use date only (YYYY-MM-DD)
+          gameDate: puzzleDate.toISOString().split("T")[0] || "", // Use date only (YYYY-MM-DD)
         });
       } catch (error) {
         console.error("Failed to save game history:", error);
