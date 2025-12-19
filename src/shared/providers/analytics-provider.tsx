@@ -1,4 +1,4 @@
-import { createContext, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useEffect, type ReactNode, useCallback } from "react";
 import { analytics, analyticsService } from "../services";
 
 interface AnalyticsContextType {
@@ -8,7 +8,7 @@ interface AnalyticsContextType {
 }
 
 export const AnalyticsContext = createContext<AnalyticsContextType | null>(
-  null
+  null,
 );
 
 interface AnalyticsProviderProps {
@@ -24,14 +24,14 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     (eventName: string, params?: Record<string, any>) => {
       analyticsService.logEvent(eventName, params);
     },
-    []
+    [],
   );
 
   const trackPageView = useCallback(
     (pageName: string, params?: Record<string, any>) => {
       analyticsService.logPageView(pageName, params);
     },
-    []
+    [],
   );
 
   const setUserId = useCallback((userId: string | null) => {
