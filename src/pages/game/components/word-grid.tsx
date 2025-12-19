@@ -31,9 +31,9 @@ export function WordGrid({
 
   return (
     <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-      {unsolvedWords.map((word, index) => (
+      {unsolvedWords.map((word) => (
         <WordTile
-          key={index}
+          key={word}
           word={word}
           selected={selectedWords.has(word)}
           solved={isWordSolved(word)}

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { cn } from "@/shared/utils";
 import { DIFFICULTY_COLORS } from "@/shared/constants";
 import useFitText from "use-fit-text";
@@ -23,7 +24,7 @@ function formatWordDisplay(word: string) {
   return word;
 }
 
-export function WordTile({
+const WordTileComponent = ({
   word,
   selected,
   solved,
@@ -31,7 +32,7 @@ export function WordTile({
   onClick,
   isIncorrect = false,
   isAnimating = false,
-}: WordTileProps) {
+}: WordTileProps) => {
   const { fontSize, ref } = useFitText({
     maxFontSize: 120,
     minFontSize: 50,
@@ -77,4 +78,6 @@ export function WordTile({
       </div>
     </button>
   );
-}
+};
+
+export const WordTile = memo(WordTileComponent);
