@@ -29,7 +29,7 @@ export class PuzzleService {
       return {
         id: doc.id,
         ...data,
-        date: data.date ? new Date(data.date) : new Date(),
+        date: data.date?.toDate?.() ?? new Date(data.date) ?? new Date(),
       } as Puzzle;
     });
   }
@@ -46,7 +46,7 @@ export class PuzzleService {
     const q = query(
       connectionsRef,
       where("date", ">=", startOfDay.toISOString()),
-      where("date", "<=", endOfDay.toISOString())
+      where("date", "<=", endOfDay.toISOString()),
     );
 
     const snapshot = await getDocs(q);
