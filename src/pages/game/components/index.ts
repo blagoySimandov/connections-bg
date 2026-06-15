@@ -2,6 +2,7 @@ export { ConnectionsGame } from "./connections-game";
 export { GameActions } from "./game-actions";
 export { GameEndScreen } from "./game-end-screen";
 export { GameHeader } from "./game-header";
+export { LandingFooter } from "./landing-footer";
 export { GameResults } from "./game-results";
 export { MistakesIndicator } from "./mistakes-indicator";
 export { OneAwayPopup } from "./one-away-popup";

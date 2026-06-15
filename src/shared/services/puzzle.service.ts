@@ -11,6 +11,7 @@ import {
   orderBy,
   where,
   type Firestore,
+  Timestamp,
 } from "firebase/firestore/lite";
 import type { Puzzle } from "../types";
 
@@ -36,20 +37,28 @@ export class PuzzleService {
 
   async getPuzzleByDate(date: Date): Promise<Puzzle | null> {
     const connectionsRef = collection(this.db, this.collectionName);
-
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const q = query(
+    // Try as Timestamp first
+    let q = query(
       connectionsRef,
-      where("date", ">=", startOfDay.toISOString()),
-      where("date", "<=", endOfDay.toISOString()),
+      where("date", ">=", Timestamp.fromDate(startOfDay)),
+      where("date", "<=", Timestamp.fromDate(endOfDay)),
     );
+    let snapshot = await getDocs(q);
 
-    const snapshot = await getDocs(q);
+    // Fallback: try as ISO string
+    if (snapshot.empty) {
+      q = query(
+        connectionsRef,
+        where("date", ">=", startOfDay.toISOString()),
+        where("date", "<=", endOfDay.toISOString()),
+      );
+      snapshot = await getDocs(q);
+    }
 
     if (snapshot.empty) {
       return null;
@@ -59,26 +68,9 @@ export class PuzzleService {
     return {
       id: snapshot.docs[0]?.id,
       ...data,
-      date: data?.date ? new Date(data.date) : new Date(),
+      date: data?.date?.toDate?.() ?? new Date(data?.date) ?? new Date(),
     } as Puzzle;
   }
-
-  async getById(id: string): Promise<Puzzle | null> {
-    const connectionRef = doc(this.db, this.collectionName, id);
-    const snapshot = await getDoc(connectionRef);
-
-    if (!snapshot.exists()) {
-      return null;
-    }
-
-    const data = snapshot.data();
-    return {
-      id: snapshot.id,
-      ...data,
-      date: data.date ? new Date(data.date) : new Date(),
-    } as Puzzle;
-  }
-
   async create(puzzle: Puzzle, userId: string): Promise<string> {
     const connectionsRef = collection(this.db, this.collectionName);
     const newConnectionRef = doc(connectionsRef);
