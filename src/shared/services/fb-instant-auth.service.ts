@@ -7,7 +7,7 @@ export class FBInstantAuthService {
     const signedInfo = await FBInstant.player.getSignedPlayerInfoAsync("connections_bg");
     const playerId = FBInstant.player.getID();
 
-    const res = await fetch("/api/fb-auth", {
+    const res = await fetch(process.env.BUN_PUBLIC_FB_AUTH_FUNCTION_URL!, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ playerId, signature: signedInfo.getSignature() }),
