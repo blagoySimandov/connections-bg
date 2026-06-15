@@ -1,4 +1,10 @@
-import { doc, getDoc, setDoc, type Firestore } from "firebase/firestore/lite";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  type Firestore,
+} from "firebase/firestore/lite";
 import type { User } from "firebase/auth";
 import type { UserData } from "../types";
 
@@ -41,5 +47,10 @@ export class UserService {
         { merge: true }
       );
     }
+  }
+
+  async deleteUserData(uid: string): Promise<void> {
+    const userRef = doc(this.db, this.collectionName, uid);
+    await deleteDoc(userRef);
   }
 }

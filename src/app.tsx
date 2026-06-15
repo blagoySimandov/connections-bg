@@ -2,7 +2,7 @@ import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { AuthProvider, AnalyticsProvider, ProtectedRoute, AdminRoute } from "@/shared";
 import { RootLayout } from "@/layout";
-import { LoginPage, GamePage, AdminPage, ProfilePage, TermsPage, PrivacyPage } from "./pages";
+import { LoginPage, GamePage, AdminPage, ProfilePage, TermsPage, PrivacyPage, DataDeletionPage } from "./pages";
 
 export function App() {
   return (
@@ -15,6 +15,7 @@ export function App() {
               <Route path="/" element={<GamePage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/data-deletion" element={<DataDeletionPage />} />
               <Route
                 path="/profile"
                 element={

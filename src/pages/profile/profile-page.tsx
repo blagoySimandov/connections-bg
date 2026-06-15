@@ -6,6 +6,7 @@ import {
   StatsOverview,
   PerformanceCard,
   EmptyState,
+  DeleteAccountCard,
 } from "./components";
 
 export function ProfilePage() {
@@ -31,6 +32,7 @@ export function ProfilePage() {
         <StatsOverview stats={stats} />
         <PerformanceCard stats={stats} />
         {stats && stats.totalGames === 0 && <EmptyState />}
+        <DeleteAccountCard />
       </div>
     </div>
   );
