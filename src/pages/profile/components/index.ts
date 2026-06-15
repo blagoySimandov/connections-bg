@@ -4,3 +4,4 @@ export { StatCard } from "./stat-card";
 export { PerformanceCard } from "./performance-card";
 export { PerformanceStatRow } from "./performance-stat-row";
 export { EmptyState } from "./empty-state";
+export { DeleteAccountCard } from "./delete-account-card";
