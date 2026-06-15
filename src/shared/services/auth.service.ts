@@ -1,5 +1,6 @@
 import {
   GoogleAuthProvider,
+  FacebookAuthProvider,
   signInWithPopup,
   signOut as firebaseSignOut,
   onAuthStateChanged as firebaseOnAuthStateChanged,
@@ -8,14 +9,20 @@ import {
 } from "firebase/auth";
 
 export class AuthService {
-  private provider: GoogleAuthProvider;
+  private googleProvider: GoogleAuthProvider;
+  private facebookProvider: FacebookAuthProvider;
 
   constructor(private auth: Auth) {
-    this.provider = new GoogleAuthProvider();
+    this.googleProvider = new GoogleAuthProvider();
+    this.facebookProvider = new FacebookAuthProvider();
   }
 
   async signInWithGoogle() {
-    return signInWithPopup(this.auth, this.provider);
+    return signInWithPopup(this.auth, this.googleProvider);
+  }
+
+  async signInWithFacebook() {
+    return signInWithPopup(this.auth, this.facebookProvider);
   }
 
   async signOut() {

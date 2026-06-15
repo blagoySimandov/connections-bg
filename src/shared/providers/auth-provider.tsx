@@ -8,6 +8,7 @@ interface AuthContextType {
   userData: UserData | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -45,9 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await userService.saveUserToFirestore(result.user);
       const data = await userService.getUserData(result.user.uid);
       setUserData(data);
-      analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_IN, {
-        method: "google",
-      });
+      analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_IN, { method: "google" });
+    }
+  };
+
+  const handleSignInWithFacebook = async () => {
+    const result = await authService.signInWithFacebook();
+    if (result.user) {
+      await userService.saveUserToFirestore(result.user);
+      const data = await userService.getUserData(result.user.uid);
+      setUserData(data);
+      analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_IN, { method: "facebook" });
     }
   };
 
@@ -62,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userData,
     loading,
     signInWithGoogle: handleSignInWithGoogle,
+    signInWithFacebook: handleSignInWithFacebook,
     signOut: handleSignOut,
   };
 
