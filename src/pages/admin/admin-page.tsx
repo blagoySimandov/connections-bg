@@ -21,6 +21,106 @@ interface FormData {
   categories: CategoryForm[];
 }
 
+function findConflictingPuzzle(
+  puzzles: Puzzle[],
+  selectedDate: string,
+  editingPuzzle: Puzzle | null,
+) {
+  return puzzles.find((puzzle) => {
+    if (editingPuzzle?.id && puzzle.id === editingPuzzle.id) {
+      return false;
+    }
+    return new Date(puzzle.date).toDateString() === selectedDate;
+  });
+}
+
+function collectInputValue(
+  allInputs: Map<string, { catIndex: number; wordIndex?: number }[]>,
+  value: string,
+  location: { catIndex: number; wordIndex?: number },
+) {
+  if (!allInputs.has(value)) {
+    allInputs.set(value, []);
+  }
+  allInputs.get(value)!.push(location);
+}
+
+function validateFormData(
+  formData: FormData,
+  puzzles: Puzzle[],
+  editingPuzzle: Puzzle | null,
+): ValidationErrors | null {
+  const errors: ValidationErrors = {
+    categories: formData.categories.map(() => ({ words: [] })),
+  };
+
+  let hasErrors = false;
+
+  if (!formData.title.trim()) {
+    errors.title = "Title is required";
+    hasErrors = true;
+  }
+
+  const selectedDate = new Date(formData.date).toDateString();
+  const conflictingPuzzle = findConflictingPuzzle(
+    puzzles,
+    selectedDate,
+    editingPuzzle,
+  );
+
+  if (conflictingPuzzle) {
+    errors.date = `A puzzle already exists for this date: ${conflictingPuzzle.title || "Untitled"}`;
+    hasErrors = true;
+  }
+
+  const allInputs: Map<string, { catIndex: number; wordIndex?: number }[]> =
+    new Map();
+
+  formData.categories.forEach((category, catIndex) => {
+    const categoryErrors = errors.categories[catIndex];
+    if (!categoryErrors) return;
+
+    if (!category.name.trim()) {
+      categoryErrors.name = "Category name is required";
+      hasErrors = true;
+    } else {
+      collectInputValue(allInputs, category.name.trim().toLowerCase(), {
+        catIndex,
+      });
+    }
+
+    category.words.forEach((word, wordIndex) => {
+      if (!word.trim()) {
+        categoryErrors.words[wordIndex] = "Word is required";
+        hasErrors = true;
+      } else {
+        collectInputValue(allInputs, word.trim().toLowerCase(), {
+          catIndex,
+          wordIndex,
+        });
+      }
+    });
+  });
+
+  allInputs.forEach((locations) => {
+    if (locations.length > 1) {
+      locations.forEach(({ catIndex, wordIndex }) => {
+        const categoryErrors = errors.categories[catIndex];
+        if (!categoryErrors) return;
+
+        if (wordIndex !== undefined) {
+          categoryErrors.words[wordIndex] = "Duplicate value";
+        } else {
+          categoryErrors.name = "Duplicate value";
+        }
+      });
+      hasErrors = true;
+    }
+  });
+
+  return hasErrors ? errors : null;
+}
+
 export function AdminPage() {
   const { user } = useAuth();
   const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
@@ -86,78 +186,8 @@ export function AdminPage() {
       setError(null);
       setValidationErrors(null);
 
-      const errors: ValidationErrors = {
-        categories: formData.categories.map(() => ({ words: [] })),
-      };
-
-      let hasErrors = false;
-
-      if (!formData.title.trim()) {
-        errors.title = "Title is required";
-        hasErrors = true;
-      }
-
-      const selectedDate = new Date(formData.date).toDateString();
-      const conflictingPuzzle = puzzles.find((puzzle) => {
-        if (editingPuzzle?.id && puzzle.id === editingPuzzle.id) {
-          return false;
-        }
-        return new Date(puzzle.date).toDateString() === selectedDate;
-      });
-
-      if (conflictingPuzzle) {
-        errors.date = `A puzzle already exists for this date: ${conflictingPuzzle.title || "Untitled"}`;
-        hasErrors = true;
-      }
-
-      const allInputs: Map<string, { catIndex: number; wordIndex?: number }[]> = new Map();
-
-      formData.categories.forEach((category, catIndex) => {
-        const categoryErrors = errors.categories[catIndex];
-        if (!categoryErrors) return;
-
-        if (!category.name.trim()) {
-          categoryErrors.name = "Category name is required";
-          hasErrors = true;
-        } else {
-          const normalized = category.name.trim().toLowerCase();
-          if (!allInputs.has(normalized)) {
-            allInputs.set(normalized, []);
-          }
-          allInputs.get(normalized)!.push({ catIndex });
-        }
-
-        category.words.forEach((word, wordIndex) => {
-          if (!word.trim()) {
-            categoryErrors.words[wordIndex] = "Word is required";
-            hasErrors = true;
-          } else {
-            const normalized = word.trim().toLowerCase();
-            if (!allInputs.has(normalized)) {
-              allInputs.set(normalized, []);
-            }
-            allInputs.get(normalized)!.push({ catIndex, wordIndex });
-          }
-        });
-      });
-
-      allInputs.forEach((locations, value) => {
-        if (locations.length > 1) {
-          locations.forEach(({ catIndex, wordIndex }) => {
-            const categoryErrors = errors.categories[catIndex];
-            if (!categoryErrors) return;
-
-            if (wordIndex !== undefined) {
-              categoryErrors.words[wordIndex] = "Duplicate value";
-            } else {
-              categoryErrors.name = "Duplicate value";
-            }
-          });
-          hasErrors = true;
-        }
-      });
-
-      if (hasErrors) {
+      const errors = validateFormData(formData, puzzles, editingPuzzle);
+      if (errors) {
         setValidationErrors(errors);
         return;
       }
