@@ -7,6 +7,7 @@ export const ANALYTICS_EVENTS = {
   DESELECT_CLICKED: "deselect_clicked",
   SIGN_IN: "sign_in",
   SIGN_OUT: "sign_out",
+  DELETE_ACCOUNT: "delete_account",
   PAGE_VIEW: "page_view",
 } as const;
 

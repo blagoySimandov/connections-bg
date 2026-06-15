@@ -3,6 +3,7 @@ import {
   FacebookAuthProvider,
   signInWithPopup,
   signOut as firebaseSignOut,
+  deleteUser,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   type Auth,
   type User,
@@ -27,6 +28,10 @@ export class AuthService {
 
   async signOut() {
     return firebaseSignOut(this.auth);
+  }
+
+  async deleteAccount(user: User) {
+    return deleteUser(user);
   }
 
   onAuthStateChanged(callback: (user: User | null) => void) {

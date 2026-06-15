@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { ConnectionsGame } from "./components";
+import { ConnectionsGame, LandingFooter } from "./components";
 import { puzzleService } from "@/shared/services";
 import { Loader } from "@/shared/ui";
 
@@ -21,5 +21,10 @@ export function GamePage() {
   if (error) return <div>Error loading puzzle: {error.message}</div>;
   if (!puzzle) return <div>No Puzzle for today :/</div>;
 
-  return <ConnectionsGame puzzle={puzzle} />;
+  return (
+    <>
+      <ConnectionsGame puzzle={puzzle} />
+      <LandingFooter />
+    </>
+  );
 }

@@ -10,7 +10,7 @@ import {
 import { Input } from "@/shared/ui";
 import { Label } from "@/shared/ui";
 import { CategoryInput } from "./category-input";
-import type { CategoryForm } from "../types";
+import type { CategoryForm, ValidationErrors } from "../types";
 
 interface PuzzleFormProps {
   open: boolean;
@@ -18,11 +18,14 @@ interface PuzzleFormProps {
   title: string;
   date: string;
   categories: CategoryForm[];
+  validationErrors: ValidationErrors | null;
   onOpenChange: (open: boolean) => void;
   onTitleChange: (title: string) => void;
   onDateChange: (date: string) => void;
   onCategoryNameChange: (index: number, name: string) => void;
   onCategoryWordChange: (catIndex: number, wordIndex: number, value: string) => void;
+  onCategoryMoveUp: (index: number) => void;
+  onCategoryMoveDown: (index: number) => void;
   onSave: () => void;
 }
 
@@ -32,11 +35,14 @@ export function PuzzleForm({
   title,
   date,
   categories,
+  validationErrors,
   onOpenChange,
   onTitleChange,
   onDateChange,
   onCategoryNameChange,
   onCategoryWordChange,
+  onCategoryMoveUp,
+  onCategoryMoveDown,
   onSave,
 }: PuzzleFormProps) {
   return (
@@ -60,7 +66,11 @@ export function PuzzleForm({
               value={title}
               onChange={(e) => onTitleChange(e.target.value)}
               placeholder="e.g., Daily Connections #1"
+              className={validationErrors?.title ? "border-destructive" : ""}
             />
+            {validationErrors?.title && (
+              <p className="text-sm text-destructive">{validationErrors.title}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -70,7 +80,11 @@ export function PuzzleForm({
               type="date"
               value={date}
               onChange={(e) => onDateChange(e.target.value)}
+              className={validationErrors?.date ? "border-destructive" : ""}
             />
+            {validationErrors?.date && (
+              <p className="text-sm text-destructive">{validationErrors.date}</p>
+            )}
           </div>
 
           <div className="space-y-6">
@@ -80,8 +94,11 @@ export function PuzzleForm({
                 key={index}
                 category={category}
                 index={index}
+                errors={validationErrors?.categories[index]}
                 onNameChange={onCategoryNameChange}
                 onWordChange={onCategoryWordChange}
+                onMoveUp={onCategoryMoveUp}
+                onMoveDown={onCategoryMoveDown}
               />
             ))}
           </div>

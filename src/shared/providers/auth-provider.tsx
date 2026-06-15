@@ -10,6 +10,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -66,6 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_OUT);
   };
 
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    await userService.deleteUserData(user.uid);
+    await authService.deleteAccount(user);
+    setUserData(null);
+    analyticsService.logEvent(ANALYTICS_EVENTS.DELETE_ACCOUNT);
+  };
+
   const value = {
     user,
     userData,
@@ -73,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithGoogle: handleSignInWithGoogle,
     signInWithFacebook: handleSignInWithFacebook,
     signOut: handleSignOut,
+    deleteAccount: handleDeleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
