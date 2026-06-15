@@ -1,6 +1,6 @@
 import { setGlobalOptions } from "firebase-functions";
 import { onRequest } from "firebase-functions/https";
-import { defineSecret } from "firebase-functions/params";
+import { defineSecret, defineString } from "firebase-functions/params";
 import * as admin from "firebase-admin";
 import * as crypto from "crypto";
 
@@ -9,6 +9,7 @@ setGlobalOptions({ maxInstances: 10 });
 admin.initializeApp();
 
 const fbAppSecret = defineSecret("FACEBOOK_APP_SECRET");
+const fbAppId = defineString("FACEBOOK_APP_ID");
 
 export const fbAuth = onRequest({ secrets: [fbAppSecret] }, async (req, res) => {
   if (req.method !== "POST") {
@@ -45,6 +46,11 @@ export const fbAuth = onRequest({ secrets: [fbAppSecret] }, async (req, res) => 
   const payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString());
   if (payload.player_id !== playerId) {
     res.status(401).json({ error: "Player ID mismatch" });
+    return;
+  }
+
+  if (payload.app_id !== fbAppId.value()) {
+    res.status(401).json({ error: "App ID mismatch" });
     return;
   }
 

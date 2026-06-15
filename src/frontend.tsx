@@ -12,7 +12,14 @@ import { IS_FACEBOOK_INSTANT_GAMES } from "./shared/feature-flags";
 import { fbInstantAuthService, userService, analyticsService, ANALYTICS_EVENTS } from "./shared/services";
 
 async function bootstrap() {
-  if (IS_FACEBOOK_INSTANT_GAMES && typeof FBInstant !== "undefined") {
+  if (IS_FACEBOOK_INSTANT_GAMES) {
+    await new Promise<void>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = "https://connect.facebook.net/en_US/fbinstant.8.0.js";
+      script.onload = () => resolve();
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
     await FBInstant.initializeAsync();
     await FBInstant.startGameAsync();
 
