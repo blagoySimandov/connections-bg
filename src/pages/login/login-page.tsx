@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui";
-import { GoogleLoginButton } from "./components";
+import { Loader } from "@/shared/ui";
+import { GoogleLoginButton, FacebookLoginButton } from "./components";
+import { IS_FACEBOOK_INSTANT_GAMES } from "@/shared/feature-flags";
 
 export function LoginPage() {
   return (
@@ -9,7 +11,14 @@ export function LoginPage() {
           <CardTitle className="text-3xl font-bold">Connections</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <GoogleLoginButton />
+          {IS_FACEBOOK_INSTANT_GAMES ? (
+            <Loader />
+          ) : (
+            <>
+              <GoogleLoginButton />
+              <FacebookLoginButton />
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -24,6 +24,29 @@ export class UserService {
     return null;
   }
 
+  async saveFBUserToFirestore(
+    uid: string,
+    displayName: string | null,
+    photoURL: string | null
+  ): Promise<void> {
+    const userRef = doc(this.db, this.collectionName, uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      await setDoc(userRef, {
+        uid,
+        email: null,
+        displayName,
+        photoURL,
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        role: "user",
+      });
+    } else {
+      await setDoc(userRef, { lastLoginAt: new Date().toISOString() }, { merge: true });
+    }
+  }
+
   async saveUserToFirestore(user: User): Promise<void> {
     const userRef = doc(this.db, this.collectionName, user.uid);
     const userDoc = await getDoc(userRef);
