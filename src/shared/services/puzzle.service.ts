@@ -51,6 +51,7 @@ export class PuzzleService {
     let snapshot = await getDocs(q);
 
     // Fallback: try as ISO string
+    // This is done because the puzzle generatior in n8n is retarded.
     if (snapshot.empty) {
       q = query(
         connectionsRef,
