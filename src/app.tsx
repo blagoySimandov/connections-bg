@@ -1,5 +1,7 @@
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, MemoryRouter, Routes, Route } from "react-router";
+
+const Router = process.env.BUN_PUBLIC_PLATFORM === "fb" ? MemoryRouter : BrowserRouter;
 import { AuthProvider, AnalyticsProvider, ProtectedRoute, AdminRoute } from "@/shared";
 import { RootLayout } from "@/layout";
 import { LoginPage, GamePage, AdminPage, ProfilePage, TermsPage, PrivacyPage, DataDeletionPage } from "./pages";
@@ -8,7 +10,7 @@ export function App() {
   return (
     <AuthProvider>
       <AnalyticsProvider>
-        <BrowserRouter>
+        <Router>
           <Routes>
             <Route element={<RootLayout />}>
               <Route path="/login" element={<LoginPage />} />
@@ -34,7 +36,7 @@ export function App() {
               />
             </Route>
           </Routes>
-        </BrowserRouter>
+        </Router>
       </AnalyticsProvider>
     </AuthProvider>
   );

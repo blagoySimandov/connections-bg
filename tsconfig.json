@@ -23,7 +23,8 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@platform-impl": ["./src/platform/web.ts"]
     },
 
     // Some stricter flags (disabled by default)
@@ -32,8 +33,8 @@
     "noPropertyAccessFromIndexSignature": false,
 
     // Allow importing image files
-    "types": ["bun-types", "facebook-instant-games"]
+    "types": ["bun-types"]
   },
 
-  "exclude": ["dist", "node_modules", "build.ts"]
+  "exclude": ["dist", "node_modules", "build.ts", "scripts"]
 }

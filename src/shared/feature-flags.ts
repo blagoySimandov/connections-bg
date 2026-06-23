@@ -1,2 +1,0 @@
-export const IS_FACEBOOK_INSTANT_GAMES =
-  process.env.BUN_PUBLIC_FACEBOOK_INSTANT_GAMES === "true";
