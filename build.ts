@@ -126,6 +126,10 @@ async function injectFacebookSdk(htmlPath: string): Promise<void> {
   await Bun.write(htmlPath, html.replace("</head>", `  ${FB_SDK_TAG}\n  </head>`));
 }
 
+// FB-build half of the "@platform-impl" compile-time swap. tsconfig aliases it
+// to the no-op web.ts stub (default + web bundle); here we re-resolve it to the
+// real fb.ts impl, and injectFacebookSdk() adds the CDN <script> so the global
+// `FBInstant` exists at runtime. See src/platform/index.ts for the full rationale.
 const facebookPlatformPlugin: BunPlugin = {
   name: "facebook-platform-impl",
   setup(build) {
