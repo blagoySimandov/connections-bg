@@ -286,13 +286,13 @@ export function ConnectionsGame({ puzzle }: ConnectionsGameProps) {
   ]);
 
   return (
-    <div className="max-w-2xl mx-auto px-2 py-6 sm:p-6 relative">
+    <div className="max-w-2xl mx-auto px-2 py-3 sm:px-6 sm:py-4 relative">
       <OneAwayPopup show={showOneAway} />
 
       <GameHeader date={puzzle.date} />
 
-      <main className="space-y-6">
-        <p className="text-center text-lg font-medium">
+      <main className="space-y-4 sm:space-y-6">
+        <p className="text-center text-sm sm:text-base font-medium">
           Направете групи с по 4 думи!
         </p>
 

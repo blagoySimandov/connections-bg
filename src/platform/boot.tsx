@@ -22,15 +22,20 @@ async function authenticatePlayer(platform: Platform): Promise<void> {
     });
     return;
   }
-  const cred = await fbSessionAuthService.signIn(player.id, player.signature);
-  await userService.saveFBUserToFirestore(cred.user.uid, player.name, player.photo);
+  const { cred, name, photo } = await fbSessionAuthService.signIn(player.id, player.signature);
+  await userService.saveFBUserToFirestore(cred.user.uid, name, photo);
   analyticsService.logEvent(ANALYTICS_EVENTS.SIGN_IN, { method: "facebook_instant" });
 }
 
 async function boot(): Promise<true> {
   const platform = await loadPlatform();
   await platform.initPlatform();
-  await authenticatePlayer(platform);
+  try {
+    await authenticatePlayer(platform);
+  } catch (err) {
+    // Auth is best-effort: never block app boot on it.
+    console.error("[boot] FB auth failed, continuing unauthenticated", err);
+  }
   return true;
 }
 

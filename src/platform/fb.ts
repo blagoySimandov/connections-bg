@@ -9,10 +9,12 @@ function setLoadingProgress(progress: number): void {
 async function loadPlayer(): Promise<FBPlayer> {
   try {
     const signed = await FBInstant.player.getSignedPlayerInfoAsync("connections_bg");
+    // SDK 8.0 removed player.getName()/getPhoto() (privacy). Resolve name/photo
+    // server-side from the signature when needed.
     return {
       id: FBInstant.player.getID() || null,
-      name: FBInstant.player.getName() || null,
-      photo: FBInstant.player.getPhoto() || null,
+      name: null,
+      photo: null,
       signature: signed?.getSignature() || null,
     };
   } catch (err) {
