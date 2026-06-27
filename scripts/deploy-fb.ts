@@ -8,7 +8,7 @@ const GRAPH = `https://graph.facebook.com/${GRAPH_VERSION}`;
 
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(`
-🚀 Facebook Instant Games deploy
+Facebook Instant Games deploy
 
 Usage: bun run deploy:fb [options]
 
@@ -32,7 +32,7 @@ function arg(name: string): string | undefined {
 function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    console.error(`❌ Missing required env: ${name}`);
+    console.error(`Missing required env: ${name}`);
     process.exit(1);
   }
   return value;
@@ -40,16 +40,16 @@ function requireEnv(name: string): string {
 
 async function buildBundle(): Promise<void> {
   if (process.argv.includes("--skip-build")) {
-    console.log("⏭️  Skipping build, reusing dist-fb/");
+    console.log("Skipping build, reusing dist-fb/");
     return;
   }
-  console.log("🏗️  Building fb target...");
+  console.log("Building fb target...");
   await $`bun run build:fb`;
 }
 
 async function zipBundle(zipPath: string): Promise<void> {
   await rm(zipPath, { force: true });
-  console.log(`📦 Zipping dist-fb/ → ${path.basename(zipPath)}`);
+  console.log(`Zipping dist-fb/ -> ${path.basename(zipPath)}`);
   await $`zip -r -q ${zipPath} .`.cwd("dist-fb");
 }
 
@@ -67,7 +67,7 @@ async function uploadBundle(appId: string, token: string, zipPath: string, comme
   form.append("type", "BUNDLE");
   form.append("comment", comment);
   form.append("asset", Bun.file(zipPath, { type: "application/octet-stream" }), "bundle.zip");
-  console.log("☁️  Uploading bundle to Facebook...");
+  console.log("Uploading bundle to Facebook...");
   const res = await fetch(`${GRAPH}/${appId}/assets`, { method: "POST", body: form });
   const body = await res.json();
   if (!res.ok) throw new Error(`Upload failed: ${JSON.stringify(body)}`);
@@ -84,8 +84,8 @@ await zipBundle(zipPath);
 const token = await fetchAppToken(appId, appSecret);
 const result = await uploadBundle(appId, token, zipPath, comment);
 
-console.log("\n✅ Uploaded:", JSON.stringify(result));
+console.log("\nUploaded:", JSON.stringify(result));
 console.log(
-  "\n➡️  Build is now in 'Standby' under Instant Games → Web Hosting.\n" +
-    "   Promote it to production from the App Dashboard (no stable public API for the push-live step).",
+  `\nManage hosting: https://developers.facebook.com/apps/${appId}/use_cases/customize/hosting/`,
 );
+console.log(`Play game: https://fb.gg/play/${appId}`);
