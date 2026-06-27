@@ -1,4 +1,6 @@
 export const MAX_MISTAKES = 4;
+export const IS_FACEBOOK_INSTANT_GAMES =
+  process.env.BUN_PUBLIC_PLATFORM === "fb";
 
 export const DIFFICULTY_COLORS = {
   0: "bg-connections-easy text-black",

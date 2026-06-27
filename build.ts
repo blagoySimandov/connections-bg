@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 import plugin from "bun-plugin-tailwind";
+import type { BunPlugin } from "bun";
 import { existsSync } from "fs";
 import { rm, copyFile } from "fs/promises";
 import path from "path";
@@ -112,7 +113,39 @@ const formatFileSize = (bytes: number): string => {
 console.log("\n🚀 Starting build process...\n");
 
 const cliConfig = parseArgs();
-const outdir = cliConfig.outdir || path.join(process.cwd(), "dist");
+
+const PLATFORM = process.env.BUN_PUBLIC_PLATFORM === "fb" ? "fb" : "web";
+const isFacebook = PLATFORM === "fb";
+const outdir =
+  cliConfig.outdir || path.join(process.cwd(), isFacebook ? "dist-fb" : "dist");
+const FB_SDK_TAG =
+  '<script src="https://connect.facebook.net/en_US/fbinstant.8.0.js"></script>';
+
+async function injectFacebookSdk(htmlPath: string): Promise<void> {
+  const html = await Bun.file(htmlPath).text();
+  await Bun.write(htmlPath, html.replace("</head>", `  ${FB_SDK_TAG}\n  </head>`));
+}
+
+// FB-build half of the "@platform-impl" compile-time swap. tsconfig aliases it
+// to the no-op web.ts stub (default + web bundle); here we re-resolve it to the
+// real fb.ts impl, and injectFacebookSdk() adds the CDN <script> so the global
+// `FBInstant` exists at runtime. See src/platform/index.ts for the full rationale.
+const facebookPlatformPlugin: BunPlugin = {
+  name: "facebook-platform-impl",
+  setup(build) {
+    build.onResolve({ filter: /^@platform-impl$/ }, () => ({
+      path: path.resolve(process.cwd(), "src/platform/fb.ts"),
+    }));
+  },
+};
+
+async function copyFacebookConfig(): Promise<void> {
+  const src = path.join(process.cwd(), "fbapp-config.json");
+  if (existsSync(src)) {
+    await copyFile(src, path.join(outdir, "fbapp-config.json"));
+    console.log("📄 Copied fbapp-config.json to dist");
+  }
+}
 
 if (existsSync(outdir)) {
   console.log(`🗑️ Cleaning previous build at ${outdir}`);
@@ -131,14 +164,16 @@ console.log(
 const result = await Bun.build({
   entrypoints,
   outdir,
-  plugins: [plugin],
+  plugins: isFacebook ? [plugin, facebookPlatformPlugin] : [plugin],
   minify: true,
   target: "browser",
   sourcemap: "linked",
   env: "inline",
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
+    "process.env.BUN_PUBLIC_PLATFORM": JSON.stringify(PLATFORM),
   },
+  ...(isFacebook ? { publicPath: "./" } : {}),
   ...cliConfig,
 });
 
@@ -158,6 +193,12 @@ const robotsTxtDest = path.join(outdir, "robots.txt");
 if (existsSync(robotsTxtSrc)) {
   await copyFile(robotsTxtSrc, robotsTxtDest);
   console.log("📄 Copied robots.txt to dist");
+}
+
+if (isFacebook) {
+  await injectFacebookSdk(path.join(outdir, "index.html"));
+  console.log("📄 Injected Facebook Instant Games SDK into index.html");
+  await copyFacebookConfig();
 }
 
 const buildTime = (end - start).toFixed(2);

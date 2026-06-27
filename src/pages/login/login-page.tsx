@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui";
 import { Loader } from "@/shared/ui";
 import { GoogleLoginButton, FacebookLoginButton } from "./components";
-import { IS_FACEBOOK_INSTANT_GAMES } from "@/shared/feature-flags";
+import { IS_FACEBOOK_INSTANT_GAMES } from "@/shared";
 
 export function LoginPage() {
   return (

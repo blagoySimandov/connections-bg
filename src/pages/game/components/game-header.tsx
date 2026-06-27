@@ -9,9 +9,9 @@ interface GameHeaderProps {
  */
 export function GameHeader({ date }: GameHeaderProps) {
   return (
-    <header className="text-center mb-8">
-      <h1 className="text-4xl font-bold mb-2">Connections</h1>
-      <p className="text-muted-foreground">{formatDateBulgarian(date)}</p>
+    <header className="text-center mb-3 sm:mb-4">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-0.5">Connections</h1>
+      <p className="text-sm sm:text-base text-muted-foreground">{formatDateBulgarian(date)}</p>
     </header>
   );
 }

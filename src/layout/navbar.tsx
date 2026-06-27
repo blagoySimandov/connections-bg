@@ -1,8 +1,11 @@
 import { Link } from "react-router";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/shared/ui";
 import { useAuth } from "@/shared/hooks";
 //@ts-ignore TODO: fix this
 import logo from "@/logo.png";
+
+const isFacebook = process.env.BUN_PUBLIC_PLATFORM === "fb";
 
 export function Navbar() {
   const { user, userData, signOut } = useAuth();
@@ -59,14 +62,21 @@ export function Navbar() {
                 {user.displayName}
               </span>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut()}
-              className="text-xs md:text-sm"
-            >
-              Sign out
-            </Button>
+            {isFacebook ? (
+              <span className="flex items-center gap-1 text-xs md:text-sm text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="hidden sm:inline">Logged in</span>
+              </span>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => signOut()}
+                className="text-xs md:text-sm"
+              >
+                Sign out
+              </Button>
+            )}
           </div>
         )}
 
